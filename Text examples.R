@@ -1,4 +1,4 @@
-# The following script is a "port" of Borgatti, Everett, & Johnson (3rd
+# The following script is a "port" of Borgatti, Everett, & Johnson (2nd
 #  edition) to R.
 # In a couple locations, I have used fread() to open ".dat" files, which is
 #  a common network file format. I have also included a couple functions to
@@ -24,7 +24,8 @@
 #  included here.
 
 {
-  c("conflicted",    # To deal with conflicting function names
+  c("ca",            # Correspondence analysis
+    "conflicted",    # To deal with conflicting function names
                      # I've had some strangeness with this
                      #  script. I suspect package:conflicted,
                      #  but I don't yet know for sure.
@@ -445,23 +446,24 @@ plot(node_gr,
 
 # Figure 5.7
 # Edgelists (without attributes)
-as.matrix("Bill Smith", "Eric Morrison",
-          "Bill Smith", "Doug Johnson",
-          "Bill Smith", "Carrie Jones",
-          "Eric Morrison", "Bill Smith",
-          "Eric Morrison","Doug Johnson",
-          "Eric Morrison", "Finn Cobb",
-          "Doug Johnson", "Bill Smith",
-          "Doug Johnson", "Eric Morrison",
-          "Doug Johnson", "Finn Cobb",
-          "Carrie Jones", "Bill Smith",
-          "Carrie Jones", "Finn Cobb",
-          "Finn Cobb", "Eric Morrison",
-          "Finn Cobb", "Doug Johnson",
-          "Finn Cobb", "Carrie Jones",
-          ncol = 2,
-          byrow = TRUE) -> F5.7_mat
-from_edgelist(F5.7_mat,
+matrix(c("Bill Smith", "Eric Morrison",
+         "Bill Smith", "Doug Johnson",
+         "Bill Smith", "Carrie Jones",
+         "Eric Morrison", "Bill Smith",
+         "Eric Morrison","Doug Johnson",
+         "Eric Morrison", "Finn Cobb",
+         "Doug Johnson", "Bill Smith",
+         "Doug Johnson", "Eric Morrison",
+         "Doug Johnson", "Finn Cobb",
+         "Carrie Jones", "Bill Smith",
+         "Carrie Jones", "Finn Cobb",
+         "Finn Cobb", "Eric Morrison",
+         "Finn Cobb", "Doug Johnson",
+         "Finn Cobb", "Carrie Jones"),
+        ncol = 2,
+        nrow = 14,
+        byrow = TRUE) -> F5.7_mat
+graph_from_edgelist(F5.7_mat,
               directed = FALSE) -> F5.7_gr
 
 # Figure 5.8
@@ -478,13 +480,13 @@ from_edgelist(F5.7_mat,
 
 fread(file = here("Data/Florentine Edges.csv"),
       header = TRUE) -> florentine_edges
-from_data_frame(florentine_edges,
+graph_from_data_frame(florentine_edges,
                 directed = TRUE) -> flo_gr
 
 # Figure 5.9
 # Yep, gml is a thing. igraph::read_graph() will read gml
 #  (and other) file formats directly. network::read.paj()
-#  will read Pajek files, but I don't think that packages
+#  will read Pajek files, but I don't think that package
 #  has anything that will read gml files.
 
 # Figure 5.10
@@ -516,6 +518,10 @@ t(F5.10_mat)  # (b) Look at the transpose
 # Symmetrizing - some analyses need this
 # The way to do it is to work with the matrices:
 (F5.10_mat + t(F5.10_mat))/2 -> symmetrized_mat
+symmetrized_mat
+# In addition, sna::symmetrize() will sorta do this type of thing,
+#  but you need to give it a "rule". Look at the help file for more
+#  information.
 
 # Dichotomizing
 # Make the all binary (i.e., drop the weights)
@@ -554,6 +560,7 @@ matrix(sapply(Mat5.4, function(x) ifelse(x>1, 1, 0)),
        ncol = 15,
        nrow = 15,
        byrow = FALSE) -> Mat5.5
+Mat5.5
 
 # Matrix 5.6
 # I don't think y'all have done factor analysis. Hence, we should
@@ -574,6 +581,7 @@ fread(file = here("Data/allattrs960.csv"),
 graph_from_adjacency_matrix(scientists960_mat,
                mode = 'undirected',
                diag = FALSE) -> sci960_gr
+# In igraph, V()$ will access (or add) a vertex property.
 attributes960_df$DeptID -> V(sci960_gr)$Department
 
 set.seed(42)
@@ -582,33 +590,110 @@ plot(sci960_gr,
      vertex.size = 3,
      vertex.label = NA)
 
-# Matrix 5.7
-# BEJ are really talking about a bootstrap model: Let each node
-#  keep the same number of ties it currently has (ignore
-#  self-ties) and just randomize it.
-# The cheap way to do this is simply to assume that each 
-#  department would get an equal share of each authors ties, and 
-#  then divide the number of actual ties by that number to
-#  get the numbers in Matrix 5.7
+# Matrix 5.7 & Figure 5.13
+# OK, I'm skipping this one because there is a problem that
+#  I'm not up for at this point. BEJ give data for the
+#  Department ID, but not the Department designation. E.g., 
+#  "1" rather than "BHS" or whatever Deparment 1 is. Maybe they
+#  are in alphabetical order, but the Dept IDs are: 1, 2, 3, 4, 5
+#  6, 7, 10, 20, 30. Ugh! If I get bored at some time, I'll
+#  figure it out.
+#  
 
 # Figure 5.13
+# Given Matrix 5.7, we get this graph, ignoring self-loops, and
+#  dichotomizing for link strength > 2:
+as.matrix(fread(file = here("Data/Matrix 5.7.csv"),
+                header = FALSE)) -> Mat5.7
+c("BHS", "CCG", "DCL", "ES", "HEW", "IS", "MS", "SRG", "STAT",
+  "TAS") -> dept_names
+list(dept_names, dept_names) -> dimnames(Mat5.7)
+# 1.4 in the next seems to work; BEJ give no guidance
+#  on the choice of dichotomizing parameter
+matrix(sapply(Mat5.7, function(x) ifelse(x>1.4, 1, 0)),
+       ncol = ncol(Mat5.7),
+       nrow = nrow(Mat5.7),
+       byrow = FALSE) -> Mat5.7_dichot
+list(dept_names, dept_names) -> dimnames(Mat5.7_dichot)
+graph_from_adjacency_matrix(Mat5.7_dichot,
+                            diag = FALSE,
+                            mode = "undirected") -> F5.13_gr
+set.seed(20200414)
+# Won't do anything fancy here.
+plot(F5.13_gr,
+     vertex.shape = "square",
+     vertex.size = 5,
+     vertex.label.dist = 1)
 
-# Combining nodes via attributes (e.g., departments for the 960)
+# Notice that Section 5.7 doesn't really apply to R; you can do
+#  it via the node number as an identifier.
+#  Hence, Matrix 5.8, 5.9, and Figure 5.14 we'll skip.
 
-# Normalization (e.g., for Markov matrices) - rowSums()
 
-# Notice that Section 5.7 doesn't really apply to R; you can do it via node
-#  number of identifier.
+# Figure 5.15
+LETTERS[1:6] -> mat_names
+c(1,2,2,1,1,2) -> genders
+matrix(0,
+       ncol = length(genders), 
+       nrow = length(genders)) -> gender_mat
+list(mat_names, mat_names) -> dimnames(gender_mat)
+for(i in 1:length(genders)) {
+  for(j in i:length(genders)) {
+    if(genders[i] == genders[j]) {
+      1 -> gender_mat[i,j] -> gender_mat[j,i]
+    }
+  }
+}
+gender_mat
 
-# Section 5.8: Attributes as matrices. Show how to do this.
+# Figure 5.16
+LETTERS[1:6] -> mat_names
+c(14, 67, 34, 33, 56, 45) -> ages
+matrix(0,
+       ncol = length(ages), 
+       nrow = length(ages)) -> age_diff_mat
+list(mat_names, mat_names) -> dimnames(age_diff_mat)
+for(i in 1:length(ages)) {
+  for(j in i:length(ages)) {
+    abs(ages[i]-ages[j]) -> 
+      age_diff_mat[i,j] -> 
+      age_diff_mat[j,i]
+  }
+}
+age_diff_mat
 
-# Section 5.9: Data export
+# Figure 5.17
+LETTERS[1:6] -> mat_names
+c(6,10, 3, 5, 9, 4) -> status
+matrix(0,
+       ncol = length(status), 
+       nrow = length(status)) -> status_diff_mat
+list(mat_names, mat_names) -> dimnames(status_diff_mat)
+for(i in 1:length(status)) {
+  for(j in i:length(status)) {
+    status[i]-status[j] -> 
+      status_diff_mat[i,j] -> 
+      status_diff_mat[j,i]
+  }
+}
+status_diff_mat
+
+# Figure 5.18
+# Same status and names as Figure 5.17
+matrix(0,
+       ncol = length(status), 
+       nrow = length(status)) -> status_alter_mat
+list(mat_names, mat_names) -> dimnames(status_alter_mat)
+for(i in 1:length(status)) {
+  for(j in 1:length(status)) {
+    status[j] -> status_alter_mat[i,j]
+  }
+}
+status_alter_mat
 
 ## Chapter 6 ####
 
-# Multi-dimensional scaling
-# the _dist()_ function will compute a distance matrix from (x,y) coordinate
-#  pairs. We already have that output from BEF
+# Matrix 6.1
 matrix(c(0, 206, 429, 1504, 963, 2976, 3095, 2979, 1949,
          206, 0, 233, 1308, 802, 2815, 2934, 2786, 1771,
          419, 233, 0, 1075, 671, 2684, 2799, 2631, 1616,
@@ -624,6 +709,10 @@ matrix(c(0, 206, 429, 1504, 963, 2976, 3095, 2979, 1949,
        byrow = TRUE) -> city_mat
 c("Boston", "NY", "DC", "Miami", "Chicago", "Seattle", "SF", "LA",
   "Denver") -> citynames -> rownames(city_mat) -> colnames(city_mat)
+
+# Figure 6.1
+# The "as.dist()" or "dist()" functions change the matrix
+#  into something that cmdscale() can work with
 as.dist(city_mat) -> city_dist
 
 fit <- cmdscale(city_dist, eig = TRUE, k = 2)
@@ -636,27 +725,21 @@ y <- fit$points[, 2]   # This should be reversed, but isn't in
   text(x, y, pos = 4, labels = citynames)
 }
 
-# Figure 6.2
-# Because this is not square, we might need package:vegan
-# See: https://cran.r-project.org/web/packages/vegan/vignettes/intro-vegan.pdf
-# The next works, with warnings, but does it by year, not department
+# Table 6.1 & Figure 6.2
+# The next works, with warnings
 read.ucinet.header("Data/doctorates") -> doc_hdr
 read.ucinet("Data/doctorates") -> doc_mat
-
+# A bit of clean-up; remove attributes
+NULL -> attr(doc_mat, "title")
+NULL -> attr(doc_mat, "date")
 doc_hdr$dim.labels[[2]] -> rownames(doc_mat)
 doc_hdr$dim.labels[[1]] -> colnames(doc_mat)
-as.dist(doc_mat) -> doc_dist
+doc_mat         # Table 6.1
 
-fit <- cmdscale(doc_dist, eig = TRUE, k = 2)
-x <- -fit$points[, 1]  # Otherwise, the plot is reversed
-y <- fit$points[, 2]   # This should be reversed, but isn't in
-                       #  the text
-
-{
-  plot(x, y, pch = 19, xlim = range(x) + c(0, 600))
-  text(x, y, pos = 4, labels = doc_hdr$dim.labels[[1]])
-}
-
+# This is upside down from BEJ.
+ca(doc_mat,
+   nd = 2) -> doctorates_ca
+plot(doctorates_ca)     # Figure 6.2
 
 # Figure 6.3
 matrix(c("a", "b",
@@ -671,7 +754,9 @@ matrix(c("a", "b",
          "d", "f",
          "d", "e",
          "e", "g",
+         "f", "g",
          "f", "h",
+         "g", "h",
          "h", "r",
          "h", "i",
          "i", "j",
@@ -695,6 +780,47 @@ network(F6.3_edges, directed = FALSE) -> F6.3_net
 set.seed(42)
 plot.network(F6.3_net,
              label = network.vertex.names(F6.3_net))
+
+# Table 6.2
+# Late chapters will talk in more detail about centralities
+#  (It is this habit of forward references than made me assign
+#  the extra pre-course reading.) Note, also, that BEJ normalize
+#  their valued differently than others; hence the multiplications
+#  and divisions. (And still, we're off by a bit. I think the
+#  issue is some missing edges somewhere...the correspondence
+#  analysis will have some differences...oh, well!)
+as.data.frame(F6.3_edges) -> F6.3_edgelist
+sna::betweenness(F6.3_net) * 
+  nrow(F6.3_edgelist) / 100 -> F6.3_between
+100 * sna::closeness(F6.3_net) -> F6.3_close
+sna::degree(F6.3_net) -> F6.3_degree
+# I have no idea about the normalization on the next one, but
+#  141 is the correct number
+141 * sna::evcent(F6.3_net) -> F6.3_eigen
+
+# Figure 6.3
+cbind(F6.3_degree, 
+      F6.3_close, 
+      F6.3_between, 
+      F6.3_eigen) -> F6.3_mat
+letters[1:19] -> rownames(F6.3_mat)
+F6.3_mat
+
+# Figure 6.4
+ca(F6.3_mat, nd = 2) -> F6.3_ca
+plot(F6.3_ca)
+
+# Here's one way to put this in a graph:
+data.frame("Name" = letters[1:19],
+           "Betweenness" = F6.3_between,
+           "Closeness" = F6.3_close,
+           "Degree" = F6.3_degree,
+           "Eigenvector" = F6.3_eigen,
+           row.names = NULL) -> F6.3_vert
+
+graph_from_data_frame(d = F6.3_edgelist,
+                      directed = FALSE,
+                      vertices = F6.3_vert) -> F6.3_gr
 
 # Figure 6.4
 length(network.vertex.names(F6.3_net)) -> num_vert
@@ -1630,3 +1756,53 @@ blockmodels
 
 
 Data Collection & Management (Chapters 4 & 5); contagion? API and scraping (e.g., scrape the Fisher Athletics rosters for name, sport, and major(s))
+
+
+
+
+For matrix 5.7:
+  # For the first, we need to know how many authors, and how
+  #  many links are in each department.
+  rowSums(scientists960_mat) - 
+  diag(scientists960_mat) -> num_co_authors
+
+data.frame("Author" = attributes960_df$V1,
+           "Links" = num_co_authors,
+           "Department" = attributes960_df$DeptID) -> authors_df
+
+table(authors_df$Department) -> dept_numbers
+authors_df %>%
+  group_by(., Department) %>%
+  summarise(.,
+            "Papers per Department" = sum(Links)) -> dept_authors
+c(1, 2, 3, 4, 5, 6, 7, 10, 20, 30) -> dept_ID
+list() -> dept_members
+for(i in 1:length(dept_ID)) {
+  which(authors_df$Department == dept_ID[i]) -> dept_members[[i]]
+}
+
+dept_numbers
+dept_authors
+dept_members
+
+rep(0,10) -> sum1
+for(i in 1:10) {
+  sum(scientists960_mat[1,dept_members[[i]]]) -> sum1[i]
+}
+
+
+# Because there are 10 departments, the latter for each author
+#  is just the following:
+
+# The number of times a department is a co-author is this:
+(colSums(scientists960_mat) - 
+    diag(scientists960_mat)) / 10 -> co_authored_per_dept
+
+
+
+
+authors_df %>%
+  group_by(., Department) %>%
+  summarise(.,
+            "Total Co-authors" = sum(LinksOut),
+            "Total Co-authored" = sum(LinksIn)) -> links
