@@ -25,6 +25,9 @@
 
 {
   c("conflicted",    # To deal with conflicting function names
+                     # I've had some strangeness with this
+                     #  script. I suspect package:conflicted,
+                     #  but I don't yet know for sure.
     "data.table",    # Fast data input/output
     "dplyr",         # This is all of tidyverse that gets used here
     "dtplyr",        # dplyr syntax with a data.table backend
@@ -311,7 +314,7 @@ as.matrix(fread("http://moreno.ss.uci.edu/sampson.dat",
                 nrows = 18)) -> monks_mat
 monks -> rownames(monks_mat) -> colnames(monks_mat)
 network(monks_mat, directed = TRUE) -> monks_net
-set.edge.value(monks_net, "Weight", monks_mat)
+netset.edge.value(monks_net, "Weight", monks_mat)
 
 set.seed(42)
 plot.network(monks_net,
@@ -403,25 +406,192 @@ list("Bill Smith" = c("Carrie Jones", "Doug Johnson", "Eric Morrison"),
      "Doug Johnson" = c("Finn Cobb", "Eric Morrison"),
      "Carrie Jones" = "Finn Cobb") -> nodelist
 
+# I'd bet that there's a good purrr way to do this, but I'm trying
+#  to write this script quickly, not elegantly.
+sort(c(names(nodelist), "Finn Cobb")) -> nodeNames
+matrix(0,
+       ncol = length(nodeNames),
+       nrow = length(nodeNames),
+       dimnames = list(nodeNames,
+                       nodeNames)) -> node_mat
+for(index in 1:length(nodelist)) {
+  for(col in nodelist[[index]]) {
+    1 -> node_mat[names(nodelist)[index], col]
+    1 -> node_mat[col, names(nodelist)[index]]
+  }
+}
 
-# List formats
-# Nodelists (to generate a matrix)
+# Figure 5.4
+# Let's do some igraph, just for a change
+graph_from_adjacency_matrix(node_mat,
+                            mode = "undirected") -> node_gr
+set.seed(42)
+# In the next, vertex.label.dist, vertex.label.degree, and
+#  vertex.size were set by trial and error. (I've done this
+#  before, so it didn't take many trials or much error.)
+plot(node_gr,
+     layout = layout_in_circle(node_gr),
+     vertex.label.dist = c(6, 7, 5, 7, 4),
+     vertex.shape = "csquare",
+     vertex.color = "gray",
+     vertex.size = 8,
+     vertex.label.degree = c(0, 0, -pi/6, pi, 3*pi/4))
 
-# Edgelists (with and without attributes)
+# Figure 5.5
+# UCINET specific
 
-# Transposing matrices (reverses direction of all arcs - Figure 5.10)
-#  This will need some layout stuff too, to keep the nodes in the same place?
-#  Or will set.seed() do that?
+# Figure 5.6
+# UCINET specific
 
-# Imputing data - will deal with it later
+# Figure 5.7
+# Edgelists (without attributes)
+as.matrix("Bill Smith", "Eric Morrison",
+          "Bill Smith", "Doug Johnson",
+          "Bill Smith", "Carrie Jones",
+          "Eric Morrison", "Bill Smith",
+          "Eric Morrison","Doug Johnson",
+          "Eric Morrison", "Finn Cobb",
+          "Doug Johnson", "Bill Smith",
+          "Doug Johnson", "Eric Morrison",
+          "Doug Johnson", "Finn Cobb",
+          "Carrie Jones", "Bill Smith",
+          "Carrie Jones", "Finn Cobb",
+          "Finn Cobb", "Eric Morrison",
+          "Finn Cobb", "Doug Johnson",
+          "Finn Cobb", "Carrie Jones",
+          ncol = 2,
+          byrow = TRUE) -> F5.7_mat
+from_edgelist(F5.7_mat,
+              directed = FALSE) -> F5.7_gr
+
+# Figure 5.8
+# Edgelists (with attributes)
+# I'm going to use a dataset that is similar to the one BEJ
+#  display. Where BEJ use "PADGB" for Padgett & Anselm Business,
+#  I'm using "Political"; "M" is for Marriage.
+#
+# This will require some cleaning up, as the edges may run both
+#  ways (as in the case of marriage and some political alliances)
+#  or not (as in some business/politics, such as loans). I'm not
+#  worrying about that here, though, as nothing simply handles 
+#  graphs with some directed and some not-directed.
+
+fread(file = here("Data/Florentine Edges.csv"),
+      header = TRUE) -> florentine_edges
+from_data_frame(florentine_edges,
+                directed = TRUE) -> flo_gr
+
+# Figure 5.9
+# Yep, gml is a thing. igraph::read_graph() will read gml
+#  (and other) file formats directly. network::read.paj()
+#  will read Pajek files, but I don't think that packages
+#  has anything that will read gml files.
+
+# Figure 5.10
+# I'm not interested in typing in the really big matrix, so
+#  let's do a smaller one:
+matrix(1:16,
+       ncol = 4,
+       nrow = 4) -> F5.10_mat
+F5.10_mat     # (a) Look at it
+t(F5.10_mat)  # (b) Look at the transpose
+
+# Figure 5.11
+# Just plot the two, BUT USE THE SAME SEED OR THE SAME LAYOUT
+#  FOR BOTH PLOTS.
+# I won't do that here.
+
+# Imputing (Section 5.4.2)
+# First off, you know how I feel about imputing data
+# Second, the way that UCINET imputes data is wrong (because
+#  there is no good way to impute networked data; imputing
+#  data when the samples are not independent is really, really
+#  really hard - infinitely harder than doing a good job of
+#  imputing non-networked data).
+# Third, this is UCINET specific stuff, so I won't do it here
+#
+# Matrix 5.2
+# Matrix 5.3
 
 # Symmetrizing - some analyses need this
+# The way to do it is to work with the matrices:
+(F5.10_mat + t(F5.10_mat))/2 -> symmetrized_mat
 
-# Dichotomizing - make it all binary (i.e., drop the weights)
+# Dichotomizing
+# Make the all binary (i.e., drop the weights)
+# The easiest thing to do is just ignore the weights. However, if
+#  one works with a matrix, then this works:
 
-# Combining relations - this was written before the explosion of multiplex
-#  methods; it is good, but modern approaches are better. Factor analysis on
-#  Sampson data to get Matrix 5.6
+# Matrix 5.4
+matrix(c(0,2,1,0,2,0,0,2,2,2,2,1,1,1,0,
+         2,0,3,3,1,4,2,0,2,1,1,2,0,2,0,
+         1,3,0,6,1,2,2,1,2,0,2,2,1,1,0,
+         0,3,6,0,2,2,1,0,0,0,4,3,1,0,0,
+         2,1,1,2,0,1,1,2,1,1,2,1,1,0,0,
+         0,4,2,2,1,0,1,2,2,0,2,0,1,0,0,
+         0,2,2,1,1,1,0,1,1,0,1,0,2,1,0,
+         2,0,1,0,2,2,1,0,2,1,2,0,2,0,0,
+         2,2,2,0,1,2,1,2,0,3,3,0,1,1,0,
+         2,1,0,0,1,0,0,1,3,0,3,1,0,1,0,
+         2,1,2,4,2,2,1,2,3,3,0,0,1,0,0,
+         1,2,2,3,1,0,0,0,0,1,0,0,0,0,0,
+         1,0,1,1,1,1,2,2,1,0,1,0,0,1,0,
+         1,2,1,0,0,0,1,0,1,1,0,0,1,0,0,
+         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+       ncol = 15,
+       nrow = 15,
+       byrow = TRUE) -> Mat5.4
+# Here's how I got the above: Kindle for Mac - screen capture -
+#  print to PDF - OCR - copy and paste into spreadsheet -
+#  save as CSV - open in text editor - copy and paste here -
+#  add end of line commas. Probably faster than me typing and 
+#  certainly more accurate for 225 numbers and commas.
+
+# Matrix 5.5
+# Notice that the cutoff for Matrix 5.5 is weight > 1.
+
+matrix(sapply(Mat5.4, function(x) ifelse(x>1, 1, 0)),
+       ncol = 15,
+       nrow = 15,
+       byrow = FALSE) -> Mat5.5
+
+# Matrix 5.6
+# I don't think y'all have done factor analysis. Hence, we should
+#  do that before trying to look at Matrix 5.6.
+# Stay tuned...
+
+# Figure 5.12
+as.matrix(fread(file = here("Data/pv960.csv"),
+      header = TRUE)) -> scientists960_mat
+colnames(scientists960_mat) -> rownames(scientists960_mat)
+
+fread(file = here("Data/allattrs960.csv"),
+      header = TRUE) -> attributes960_df
+
+# Because most people have a lot more papers authored than
+#  they have authored with other people (duh!), we ignore
+#  the self-loops ("diag = FALSE").
+graph_from_adjacency_matrix(scientists960_mat,
+               mode = 'undirected',
+               diag = FALSE) -> sci960_gr
+attributes960_df$DeptID -> V(sci960_gr)$Department
+
+set.seed(42)
+plot(sci960_gr,
+     vertex.color = V(sci960_gr)$Department,
+     vertex.size = 3,
+     vertex.label = NA)
+
+# Matrix 5.7
+# BEJ are really talking about a bootstrap model: Let each node
+#  keep the same number of ties it currently has (ignore
+#  self-ties) and just randomize it.
+# The cheap way to do this is simply to assume that each 
+#  department would get an equal share of each authors ties, and 
+#  then divide the number of actual ties by that number to
+#  get the numbers in Matrix 5.7
+
+# Figure 5.13
 
 # Combining nodes via attributes (e.g., departments for the 960)
 
@@ -535,22 +705,22 @@ matrix(0,
                        c("Degree", "Closeness",
                          "Betweenness", "Eigenvector"))) -> cent_mat
 # degree - must scale to get BEJ Table 6.2
-100 * degree(F6.3_net, gmode = "graph") / (num_vert-1) -> cent_mat[,"Degree"]
+100 * sna::degree(F6.3_net, gmode = "graph") / (num_vert-1) -> cent_mat[,"Degree"]
 
 # closeness - must convert to percent to get BEJ Table 6.2
 # I get different values no matter how I rescale; I think that BEJ are wrong.
 #  Or maybe I'm wrong.
-100 * closeness(F6.3_net, gmode = "graph") -> cent_mat[,"Closeness"]
+100 * sna::closeness(F6.3_net, gmode = "graph") -> cent_mat[,"Closeness"]
 
 # betweenness - must scale to get BEJ Table 6.2
 # I get different values no matter how I rescale; I think that BEJ are wrong.
 #  Or maybe I'm wrong.
-betweenness(F6.3_net, gmode = "graph") / num_vert -> cent_mat[,"Betweenness"]
+sna::betweenness(F6.3_net, gmode = "graph") / num_vert -> cent_mat[,"Betweenness"]
 
 # eigenvector - must scale to get BEJ Table 6.2
 # I get different values no matter how I rescale; I think that BEJ are wrong.
 #  Or maybe I'm wrong.
-evcent(F6.3_net, gmode = "graph") -> cent_mat[,"Eigenvector"]
+sna::evcent(F6.3_net, gmode = "graph") -> cent_mat[,"Eigenvector"]
 
 # Look at package:vegan because the matrix is not symmetric; correspondance
 #  analysis
@@ -700,8 +870,8 @@ network(camp_mat,
 read.ucinet.header("Data/campsex") -> camp_sex_hdr
 read.ucinet("Data/campsex") -> camp_sex_mat
 # The next two got imported as a matrix:
-set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1])  
-set.vertex.attribute(camp_net, "Betweenness", value = betweenness(camp_net))
+network::set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1])  
+network::set.vertex.attribute(camp_net, "Betweenness", value = sna::betweenness(camp_net))
 
 # Set edge attributes
 (outer(camp_sex_mat[,1], camp_sex_mat[,1])) %% 2 + 1 -> edge_type
@@ -710,8 +880,8 @@ c(4, 20) -> shapes       # Squares and approximate circles
 set.seed(42)
 plot.network(camp_net,
              label = network.vertex.names(camp_net),
-             vertex.sides = shapes[get.vertex.attribute(camp_net, "Sex")],
-             vertex.cex = sqrt(get.vertex.attribute(camp_net, "Betweenness")),
+             vertex.sides = shapes[network::get.vertex.attribute(camp_net, "Sex")],
+             vertex.cex = sqrt(network::get.vertex.attribute(camp_net, "Betweenness")),
 #             edge.lty = edge_type[as.edgelist(camp_net)[,]])
               edge.lty = rep(c(1:2), 12))
 
@@ -720,15 +890,15 @@ plot.network(camp_net,
 read.ucinet.header("Data/campsex") -> camp_sex_hdr
 read.ucinet("Data/campsex") -> camp_sex_mat
 # The next two got imported as a matrix:
-set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1])
-set.vertex.attribute(camp_net, "Betweenness", value = betweenness(camp_net))
+network::set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1])
+network::set.vertex.attribute(camp_net, "Betweenness", value = sna::betweenness(camp_net))
 
 # Induced subgraph:
-camp_net %s% which(get.vertex.attribute(camp_net, "Sex") == 1) -> camp_red
+camp_net %s% which(network::get.vertex.attribute(camp_net, "Sex") == 1) -> camp_red
 set.seed(42)
 plot.network(camp_red,
              label = network.vertex.names(camp_red),
-             vertex.cex = sqrt(get.vertex.attribute(camp_net, "Betweenness")),
+             vertex.cex = sqrt(network::get.vertex.attribute(camp_net, "Betweenness")),
              pad = 1)
 
 # I'm lazy...I'll skip 7.8 and 7.9
@@ -751,7 +921,7 @@ get.neighborhood(karate_net, 1) -> MrHi_neighbors
 karate_net %s% MrHi_neighbors -> MrHi_net
 c(4,20) -> shapes
 plot.network(MrHi_net,
-             vertex.sides = shapes[get.vertex.attribute(MrHi_net, "Faction")],
+             vertex.sides = shapes[network::get.vertex.attribute(MrHi_net, "Faction")],
              vertex.rot = 45,
              label = network.vertex.names(MrHi_net))
 
@@ -836,7 +1006,7 @@ salmon$V1 -> rownames(salmon_mat) -> colnames(salmon_mat)
 network(salmon_mat, 
         directed = TRUE) -> salmon_net
 
-set.edge.attribute(salmon_net, 
+network::set.edge.attribute(salmon_net, 
                    attrname = "weight", 
                    value = salmon_mat[as.edgelist(salmon_net)[,]])
 
@@ -844,7 +1014,7 @@ set.edge.attribute(salmon_net,
 #  by 20 to scale it a little bit better in relation to the size of the 
 #  graph.
 plot.network(salmon_net,
-             arrowhead.cex = sqrt(get.edge.attribute(salmon_net, "weight"))/20)
+             arrowhead.cex = sqrt(network::get.edge.attribute(salmon_net, "weight"))/20)
 
 # Figure 7.16
 
@@ -1036,10 +1206,10 @@ plot(camp_gr,
 network(camp_mat) -> camp_net  # statnet/sna version
 gplot(camp_net)
 
-set.vertex.attribute(camp_net, "Sex", camp_sex$Sexo)
+network::set.vertex.attribute(camp_net, "Sex", camp_sex$Sexo)
 # camp_sex$role -> camp_net %v% "Role"
 # The previous line is no longer equivalent to:
-set.vertex.attribute(camp_net, "Role", camp_sex$role)
+network::set.vertex.attribute(camp_net, "Role", camp_sex$role)
 
 gplot(camp_net,
       vertex.cex = 2.5,
