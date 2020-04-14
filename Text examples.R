@@ -804,6 +804,8 @@ cbind(F6.3_degree,
       F6.3_between, 
       F6.3_eigen) -> F6.3_mat
 letters[1:19] -> rownames(F6.3_mat)
+c("Degree", "Closeness", "Betweenness", "Eigenvector") -> 
+  colnames(F6.3_mat)
 F6.3_mat
 
 # Figure 6.4
@@ -822,40 +824,9 @@ graph_from_data_frame(d = F6.3_edgelist,
                       directed = FALSE,
                       vertices = F6.3_vert) -> F6.3_gr
 
-# Figure 6.4
-length(network.vertex.names(F6.3_net)) -> num_vert
-matrix(0,
-       nrow = num_vert,
-       ncol = 4,
-       dimnames = list(network.vertex.names(F6.3_net),
-                       c("Degree", "Closeness",
-                         "Betweenness", "Eigenvector"))) -> cent_mat
-# degree - must scale to get BEJ Table 6.2
-100 * sna::degree(F6.3_net, gmode = "graph") / (num_vert-1) -> cent_mat[,"Degree"]
-
-# closeness - must convert to percent to get BEJ Table 6.2
-# I get different values no matter how I rescale; I think that BEJ are wrong.
-#  Or maybe I'm wrong.
-100 * sna::closeness(F6.3_net, gmode = "graph") -> cent_mat[,"Closeness"]
-
-# betweenness - must scale to get BEJ Table 6.2
-# I get different values no matter how I rescale; I think that BEJ are wrong.
-#  Or maybe I'm wrong.
-sna::betweenness(F6.3_net, gmode = "graph") / num_vert -> cent_mat[,"Betweenness"]
-
-# eigenvector - must scale to get BEJ Table 6.2
-# I get different values no matter how I rescale; I think that BEJ are wrong.
-#  Or maybe I'm wrong.
-sna::evcent(F6.3_net, gmode = "graph") -> cent_mat[,"Eigenvector"]
-
-# Look at package:vegan because the matrix is not symmetric; correspondance
-#  analysis
-# Plot the points
-# Plot the centrality scores too
-
-# Figure 6.4
 
 # Matrix 6.2 is simply city_mat above.
+
 # Matrices 6.3, 6.4, 6.5 and 6.6 won't be redone here. However, here is the
 #  clustering output of Figure 6.5:
 

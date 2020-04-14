@@ -1,0 +1,153 @@
+Family1,Family2,Category
+Medici,Albizzi,Marriage
+Della Casa,Albizzi,Marriage
+Panciatichi,Albizzi,Marriage
+Peruzzi,Albizzi,Marriage
+Velluti,Albizzi,Marriage
+Medici,Albizzi,Political
+Albizzi,Altoviti,Marriage
+Da Uzzano,Ardinghelli,Marriage
+Guicciardini,Baroncelli,Marriage
+Velluti,Baroncelli,Marriage
+Castellani,Benizzi,Marriage
+Guicciardini,Benizzi,Marriage
+Guadagni,Bischeri,Marriage
+Peruzzi,Castellani,Marriage
+Benizzi,Castellani,Marriage
+Rondinelli,Castellani,Marriage
+Peruzzi,Castellani,Marriage
+Valori,Cocco-Donati,Marriage
+Medici,Cocco-Donati,Marriage
+Guasconi,Da Uzzano,Marriage
+Ardinghelli,Da Uzzano,Marriage
+Peruzzi,Della Casa,Marriage
+Solosmei,Della Casa,Marriage
+Rondinelli,Della Casa,Marriage
+Ginori,Dietisalvi,Marriage
+Dall'Antella,Ginori,Marriage
+Medici,Ginori,Marriage
+Medici,Ginori,Marriage
+Fioravanti,Guadagni,Marriage
+Rondinelli,Guasconi,Marriage
+Da Uzzano,Guasconi,Marriage
+Albizzi,Guasconi,Marriage
+Medici,Guasconi,Marriage
+Rondinelli,Guasconi,Marriage
+Baroncelli,Guicciardini,Marriage
+Medici,Guicciardini,Political
+Velluti,Lamberteschi,Marriage
+Guicciardini,Medici,Marriage
+Guasconi,Medici,Marriage
+Guasconi,Medici,Marriage
+Ginori,Medici,Marriage
+Davanzati,Orlandini,Marriage
+Strozzi,Panciatichi,Marriage
+Peruzzi,Panciatichi,Marriage
+Castellani,Pepi,Marriage
+Albizzi,Peruzzi,Marriage
+Castellani,Peruzzi,Marriage
+Castellani,Rondinelli,Marriage
+Castellani,Rondinelli,Marriage
+Guasconi,Rondinelli,Marriage
+Della Casa,Rondinelli,Marriage
+Strozzi,Rucellai,Marriage
+Castellani,Scambrilla,Marriage
+Tornabuoni,Solosmei,Marriage
+Della Casa,Solosmei,Marriage
+Benizzi,Strozzi,Marriage
+Guasconi,Strozzi,Marriage
+Guicciardini,Strozzi,Political
+Rucellai,Strozzi,Political
+Medici,Tornabuoni,Marriage
+Solosmei,Tornabuoni,Marriage
+Baroncelli,Velluti,Marriage
+Albizzi,Velluti,Marriage
+Lamberteschi,Velluti,Marriage
+Guasconi,Albizzi,Political
+Peruzzi,Albizzi,Political
+Guasconi,Albizzi,Political
+Medici,Albizzi,Political
+Peruzzi,Aldobrandini,Marriage
+Ardinghelli,Baroncelli,Political
+Guasconi,Castellani,Political
+Medici,Cocco-Donati,Political
+Tornabuoni,Fioravanti,Political
+Medici,Ginori,Marriage
+Medici,Ginori,Political
+Medici,Guasconi,Marriage
+Medici,Guasconi,Political
+Medici,Guasconi,Political
+Medici,Guicciardini,Political
+Strozzi,Guicciardini,Political
+Guicciardini,Medici,Political
+Albizzi,Medici,Political
+Medici,Orlandini,Political
+Lamberteschi,Peruzzi,Political
+Strozzi,Peruzzi,Political
+Medici,Rondinelli,Political
+Strozzi,Rucellai,Political
+Medici,Tornabuoni,Political
+Albizzi,Medici,Marriage
+Albizzi,Della Casa,Marriage
+Albizzi,Panciatichi,Marriage
+Albizzi,Peruzzi,Marriage
+Albizzi,Velluti,Marriage
+Albizzi,Medici,Political
+Altoviti,Albizzi,Marriage
+Ardinghelli,Da Uzzano,Marriage
+Baroncelli,Guicciardini,Marriage
+Baroncelli,Velluti,Marriage
+Benizzi,Castellani,Marriage
+Benizzi,Guicciardini,Marriage
+Bischeri,Guadagni,Marriage
+Castellani,Peruzzi,Marriage
+Castellani,Benizzi,Marriage
+Castellani,Rondinelli,Marriage
+Castellani,Peruzzi,Marriage
+Cocco-Donati,Valori,Marriage
+Cocco-Donati,Medici,Marriage
+Da Uzzano,Guasconi,Marriage
+Da Uzzano,Ardinghelli,Marriage
+Della Casa,Peruzzi,Marriage
+Della Casa,Solosmei,Marriage
+Della Casa,Rondinelli,Marriage
+Dietisalvi,Ginori,Marriage
+Ginori,Dall'Antella,Marriage
+Ginori,Medici,Marriage
+Ginori,Medici,Marriage
+Guadagni,Fioravanti,Marriage
+Guasconi,Rondinelli,Marriage
+Guasconi,Da Uzzano,Marriage
+Guasconi,Albizzi,Marriage
+Guasconi,Medici,Marriage
+Guasconi,Rondinelli,Marriage
+Guicciardini,Baroncelli,Marriage
+Guicciardini,Medici,Political
+Lamberteschi,Velluti,Marriage
+Medici,Guicciardini,Marriage
+Medici,Guasconi,Marriage
+Medici,Guasconi,Marriage
+Medici,Ginori,Marriage
+Orlandini,Davanzati,Marriage
+Panciatichi,Strozzi,Marriage
+Panciatichi,Peruzzi,Marriage
+Pepi,Castellani,Marriage
+Peruzzi,Albizzi,Marriage
+Peruzzi,Castellani,Marriage
+Rondinelli,Castellani,Marriage
+Rondinelli,Castellani,Marriage
+Rondinelli,Guasconi,Marriage
+Rondinelli,Della Casa,Marriage
+Rucellai,Strozzi,Marriage
+Scambrilla,Castellani,Marriage
+Solosmei,Tornabuoni,Marriage
+Solosmei,Della Casa,Marriage
+Strozzi,Benizzi,Marriage
+Strozzi,Guasconi,Marriage
+Strozzi,Guicciardini,Political
+Strozzi,Rucellai,Political
+Tornabuoni,Medici,Marriage
+Tornabuoni,Solosmei,Marriage
+Velluti,Baroncelli,Marriage
+Velluti,Albizzi,Marriage
+Velluti,Lamberteschi,Marriage
