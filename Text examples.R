@@ -890,6 +890,9 @@ plot.network(games_net,
              pad = 1)             # My plots clip labels otherwise
 
 #Figure 7.2
+# This type of separation can also be accomplished through
+#  tcl/tk plotting, but (a) that is interactive (and so it
+#  WILL NOT KNIT) and (b) is is a major pain.
 set.seed(42)
 plot.network(games_net,
              label = network.vertex.names(games_net),
@@ -941,7 +944,7 @@ y <- fit$points[, 2]   # This should be reversed, but isn't in
 
 # BEJ obviously must have used different (I suspect additional) data than the
 #  data that were available on the book's web-site. Oh, well. I'm not going to
-#  investigate that problem right now.
+#  investigate that problem right now; this is the correct process.
 plot.network(trade_net,
              label = colnames(trade_mat),
              coord = as.matrix(cbind(x, y)),
@@ -991,6 +994,7 @@ network::set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1])
 network::set.vertex.attribute(camp_net, "Betweenness", value = sna::betweenness(camp_net))
 
 # Induced subgraph:
+conflict_prefer("%s%", "network")  # Also appears in igraph
 camp_net %s% which(network::get.vertex.attribute(camp_net, "Sex") == 1) -> camp_red
 set.seed(42)
 plot.network(camp_red,
@@ -998,7 +1002,7 @@ plot.network(camp_red,
              vertex.cex = sqrt(network::get.vertex.attribute(camp_net, "Betweenness")),
              pad = 1)
 
-# I'm lazy...I'll skip 7.8 and 7.9
+# I'll skip 7.8 and 7.9...nothing much to learn there
 
 # Figure 7.10
 data(karate)
@@ -1020,7 +1024,8 @@ c(4,20) -> shapes
 plot.network(MrHi_net,
              vertex.sides = shapes[network::get.vertex.attribute(MrHi_net, "Faction")],
              vertex.rot = 45,
-             label = network.vertex.names(MrHi_net))
+             label = network.vertex.names(MrHi_net),
+             pad = 1)
 
 # Figure 7.12
 fread(file = here("Data/davis.csv"),
@@ -1036,8 +1041,8 @@ graph_from_adjacency_matrix(davis_ord,
                             diag = FALSE,
                             weighted = TRUE) -> davis_gr
 
-layout_with_stress(davis_gr,
-                   weights = 1/E(davis_gr)$weight) -> xy
+layout_with_kk(davis_gr,
+               weights = 1/E(davis_gr)$weight) -> xy
 set.seed(42)
 plot(davis_gr,
      layout = xy,
@@ -1062,8 +1067,8 @@ subgraph.edges(davis_gr,
                delete.vertices = FALSE) -> davis_red  # Keeps the isolated 
                                                       #  vertices
 
-layout_with_stress(davis_red,
-                   weights = 1/E(davis_red)$weight) -> xy
+layout_with_kk(davis_red,
+               weights = 1/E(davis_red)$weight) -> xy
 set.seed(42)
 plot(davis_red,              # Ugly plot
      layout = xy,
@@ -1084,8 +1089,8 @@ graph_from_adjacency_matrix(davis_ord,
                             diag = FALSE,
                             weighted = TRUE) -> davis_gr
 
-layout_with_stress(davis_gr,
-                   weights = 1/E(davis_gr)$weight) -> xy
+layout_with_kk(davis_gr,
+               weights = 1/E(davis_gr)$weight) -> xy
 set.seed(42)
 plot(davis_gr,
      layout = xy,
@@ -1114,6 +1119,13 @@ plot.network(salmon_net,
              arrowhead.cex = sqrt(network::get.edge.attribute(salmon_net, "weight"))/20)
 
 # Figure 7.16
+# Figure 7.16(a)
+
+# Figure 7.16(a)
+
+# Figure 7.16(a)
+
+# Figure 7.16(a)
 
 ## Chapter 8 ####
 # Figure 8.1
