@@ -1253,7 +1253,9 @@ qaptest(newcomb_arr,
 
 
 
+## Other Stuff ####
 
+# This is mostly leftover stuff from elsewhere
 
 # Lazega Lawyers Data Set
 # This is part of the data set that Adhikari & Dabbs (2018) use. (Only the 36 partners are included; the 35 associates are not. There are, apparently, some ongoing privacy issues with the data set.) First, let's look at the data set:
@@ -1372,49 +1374,49 @@ Re
 
 # Harrison White (and others) looked at marriage rules and descent rules in various societies. In one scenario, he comes up with a number of interesting ideas and network analyses, encapsulated in 8 axioms:
   
-1. _n_ clans in society
-2. Permanent marriage rule (what clan marries what other clan)
-3. Men from two different clans cannot marry women of the same clan
-4. All children are assigned to a single clan (determined by mother and father)
-5. Children whose fathers are in different clans must themselves be in different clans
-6. A man can never marry a woman of his own clan.
-7. Every person has at least one relative in every other clan.
-8. "Whether two people who are related by marriage and descent links are in the same clan depends only on the kind of relationship, not on the clan either one belongs to".
-(White, as quoted in Bradley & Meek, 1986.)
+# 1. _n_ clans in society
+# 2. Permanent marriage rule (what clan marries what other clan)
+# 3. Men from two different clans cannot marry women of the same clan
+# 4. All children are assigned to a single clan (determined by mother and father)
+# 5. Children whose fathers are in different clans must themselves be in different clans
+# 6. A man can never marry a woman of his own clan.
+# 7. Every person has at least one relative in every other clan.
+# 8. "Whether two people who are related by marriage and descent links are in the same clan depends only on the kind of relationship, not on the clan either one belongs to".
+# (White, as quoted in Bradley & Meek, 1986.)
 
-For example, Bradley & Meek use 5 clans (P, Q, R, S, and T), and the matrices:
-  \[
-    M = marriage = \begin{equation}
-    \begin{bmatrix}
-    0 & 1 & 0 & 0 & 0 \\ 
-    0 & 0 & 1 & 0 & 0 \\ 
-    1 & 0 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 0 & 1 \\
-    0 & 0 & 0 & 1 & 0 \end{bmatrix} 
-    \end{equation}
-    \]
+# For example, Bradley & Meek use 5 clans (P, Q, R, S, and T), and the matrices:
+#   \[
+#     M = marriage = \begin{equation}
+#     \begin{bmatrix}
+#     0 & 1 & 0 & 0 & 0 \\ 
+#     0 & 0 & 1 & 0 & 0 \\ 
+#     1 & 0 & 0 & 0 & 0 \\
+#     0 & 0 & 0 & 0 & 1 \\
+#     0 & 0 & 0 & 1 & 0 \end{bmatrix} 
+#     \end{equation}
+#     \]
 
-\[
-  D = descent = \begin{equation}
-  \begin{bmatrix}
-  0 & 0 & 0 & 0 & 1 \\
-  1 & 0 & 0 & 0 & 0 \\
-  0 & 1 & 0 & 0 & 0 \\ 
-  0 & 0 & 1 & 0 & 0 \\ 
-  0 & 0 & 0 & 1 & 0 \end{bmatrix} 
-  \end{equation}
-  \]
-In the marriage matrix, the rows (columns) are the husband's (wife's) clan; in descent matrix, the rows (columns) are the father's (child's) clan.
+# \[
+#   D = descent = \begin{equation}
+#   \begin{bmatrix}
+#   0 & 0 & 0 & 0 & 1 \\
+#   1 & 0 & 0 & 0 & 0 \\
+#   0 & 1 & 0 & 0 & 0 \\ 
+#   0 & 0 & 1 & 0 & 0 \\ 
+#   0 & 0 & 0 & 1 & 0 \end{bmatrix} 
+#   \end{equation}
+#   \]
+# In the marriage matrix, the rows (columns) are the husband's (wife's) clan; in descent matrix, the rows (columns) are the father's (child's) clan.
 
-So, we can use this to find answer questions like what is the clan of my mother's brother's daughter? We do this by:
+# So, we can use this to find answer questions like what is the clan of my mother's brother's daughter? We do this by:
   
-  * Transpose (i.e., exchange the rows and columns of) the descent matrix to find my father's clan. For matrices like we have, known as permutation matrices, the inverse and the transpose are the same operation. Inverting a matrix can be tricky, but we have R, so _solve(D)_ gives the inverse of C. _t(D)_ gives the transpose.
-* Use the marriage matrix to find my mother's clan
-* That clan is my mother's brother's clan
-* Use the descent matrix to find my mother's brother's daughter's clan
+#   * Transpose (i.e., exchange the rows and columns of) the descent matrix to find my father's clan. For matrices like we have, known as permutation matrices, the inverse and the transpose are the same operation. Inverting a matrix can be tricky, but we have R, so _solve(D)_ gives the inverse of C. _t(D)_ gives the transpose.
+# * Use the marriage matrix to find my mother's clan
+# * That clan is my mother's brother's clan
+# * Use the descent matrix to find my mother's brother's daughter's clan
 
-In matrix notation, $t(D) %*% M %*% D$ gives the answer. Let's do that.
-```{r MBD}
+# In matrix notation, $t(D) %*% M %*% D$ gives the answer. Let's do that.
+# ```{r MBD}
 matrix(c(0, 1, 0, 0, 0,
          0, 0, 1, 0, 0,
          1, 0, 0, 0, 0,
@@ -1435,40 +1437,40 @@ matrix(c(0, 0, 0, 0, 1,
 
 t(D) %*% M %*% D
 
-```
-The row is my clan, while the column is my MBD's clan.
+# ```
+# The row is my clan, while the column is my MBD's clan.
 
-Sometimes, we see some interesting block structure to these matrices. (And more often, we see some approximately block structure in the matrices; these approximate blocks are called communities.)
+# Sometimes, we see some interesting block structure to these matrices. (And more often, we see some approximately block structure in the matrices; these approximate blocks are called communities.)
 
-We can also have strength of ties, using numbers larger than one. For example, we could use for entries the number of times _i_ called _j_ in a week; those numbers would all be non-negative, but may be larger than 1.
+# We can also have strength of ties, using numbers larger than one. For example, we could use for entries the number of times _i_ called _j_ in a week; those numbers would all be non-negative, but may be larger than 1.
 
-Because of their usefulness, almost all computations on networks are actually done with matrices.
+# Because of their usefulness, almost all computations on networks are actually done with matrices.
 
-__Class 4: 23 January 2019__
-Two "quick" review questions:
+# __Class 4: 23 January 2019__
+# Two "quick" review questions:
 
-1. In the following network, identify one path, one trail that is NOT a path, and one walk that is neither a path nor a trail:
+# 1. In the following network, identify one path, one trail that is NOT a path, and one walk that is neither a path nor a trail:
 set.seed(42)
 erdos.renyi.game(10, .3, directed = TRUE) -> ex_gr
 plot(ex_gr)
 
-2. For the example marriage and descent networks from the previous class, if you are in the Q clan, in which clan is your MDBS?
+# 2. For the example marriage and descent networks from the previous class, if you are in the Q clan, in which clan is your MDBS?
 D
 
-_Clustering_ is important, as it attempts to walk a middle ground between group-level properties (too course-grained) and individual-level properties (too fine-grained). We "[assign] items into groups or classes based on similarities or distances between them" (BEJ $\S$ 6.4). And while we do this all the time -  schools put students in tracks, and we all categorize people and events - complexity reduction can be problematic:
+# _Clustering_ is important, as it attempts to walk a middle ground between group-level properties (too course-grained) and individual-level properties (too fine-grained). We "[assign] items into groups or classes based on similarities or distances between them" (BEJ $\S$ 6.4). And while we do this all the time -  schools put students in tracks, and we all categorize people and events - complexity reduction can be problematic:
 
-* Arrogance of reducer
-* Violence done to the reduced
+# * Arrogance of reducer
+# * Violence done to the reduced
 
-Still, let's do some of this. First, you should know that there are several uses of the word "cluster", so a modifier is always appropriate. BEJ 6 talks of _hierarchical clustering_, and gives the process; their example of distances between US cities is instructive (in Figure 6.5 remember the "Level" reads down the column; across that row is just the number that lists the oder in which the cities were originally given). We don't care so much about the process pseudocode as we do about getting an answer, so, let's repeat that example in R:
+# Still, let's do some of this. First, you should know that there are several uses of the word "cluster", so a modifier is always appropriate. BEJ 6 talks of _hierarchical clustering_, and gives the process; their example of distances between US cities is instructive (in Figure 6.5 remember the "Level" reads down the column; across that row is just the number that lists the oder in which the cities were originally given). We don't care so much about the process pseudocode as we do about getting an answer, so, let's repeat that example in R:
 
   # As BEJ
   # Plot the MDS!
   
 
-Compare the two methods.
+# Compare the two methods.
 
-We can do this for most any data set.
+# We can do this for most any data set.
 
 head(mtcars)
 dist(mtcars) -> mtcars_d
@@ -1477,67 +1479,66 @@ plot(cars_hc)
 str(cars_hc)
 
 
-OK, let's look carefully at the output of hclust.
+# OK, let's look carefully at the output of hclust.
 
-What else can we cluster? Here's some to look at:
-  [Cluster examples](https://cran.r-project.org/web/packages/dendextend/vignettes/Cluster_Analysis.html)
+# What else can we cluster? Here's some to look at:
+#   [Cluster examples](https://cran.r-project.org/web/packages/dendextend/vignettes/Cluster_Analysis.html)
 
-Supporting Teachers
-Once upon a time, I was on a project that surveyed beginning and experienced teachers to see how they were different. 
+# Supporting Teachers
+# Once upon a time, I was on a project that surveyed beginning and experienced teachers to see how they were different. 
 
-The theory (at the time) said that there were 9 things that teachers worried about: students, parents, colleagues, supervisors, preparation, autonomy, appearance, grading and workload. We, however, found only 8 factors: workload, appearance, colleagues, parents, grading, preparation, autonomy, and a "classroom" factor.
+# The theory (at the time) said that there were 9 things that teachers worried about: students, parents, colleagues, supervisors, preparation, autonomy, appearance, grading and workload. We, however, found only 8 factors: workload, appearance, colleagues, parents, grading, preparation, autonomy, and a "classroom" factor.
 
-What are factors? Well, they are "a small number of *linear combinations* of the variables so as to capture most of the variation...With a large number of variables it may be easier to consider a small number of combinations of the original data rather than the entire dataframe." (Crawley, Chapter 25.) This relies on the data being somewhat correlated.
+# What are factors? Well, they are "a small number of *linear combinations* of the variables so as to capture most of the variation...With a large number of variables it may be easier to consider a small number of combinations of the original data rather than the entire dataframe." (Crawley, Chapter 25.) This relies on the data being somewhat correlated.
 
-So, a 72-question survey was developed, and administered. The results are in "Supporting Teacher Data.csv" in the usual place. First, let's do a factor analysis on those data to see what the factors are. (The column headings are the theoretical category followed by the actual question number. E.g., Q0544 would be the 44th question, which theoretically applied to category 5.)
+# So, a 72-question survey was developed, and administered. The results are in "Supporting Teacher Data.csv" in the usual place. First, let's do a factor analysis on those data to see what the factors are. (The column headings are the theoretical category followed by the actual question number. E.g., Q0544 would be the 44th question, which theoretically applied to category 5.)
 
-The experience question, although coded as numbers, really mean this:
-Pre-service teachers:
-1 - no methods courses & no observations
-2 - methods courses but no observations
-3 - observations but no student teaching
-4 - currently student teaching
-5 - other
+# The experience question, although coded as numbers, really mean this:
+# Pre-service teachers:
+# 1 - no methods courses & no observations
+# 2 - methods courses but no observations
+# 3 - observations but no student teaching
+# 4 - currently student teaching
+# 5 - other
 
-Post:
-1 - 1 to 5 years
-2 - 6 to 10 years
-3 - 11 to 15 years
-4 - 16 to 20 years
-5 - 21 or more years
+# Post:
+# 1 - 1 to 5 years
+# 2 - 6 to 10 years
+# 3 - 11 to 15 years
+# 4 - 16 to 20 years
+# 5 - 21 or more years
 
 
-library(data.table)
 fread("http://citadel.sjfc.edu/faculty/bricca/Data/Beginning Teacher Factors(Z).csv")->fac.df
 
 # Add rownumbers
 
 fac.df %>%
-  filter(.,group=="pre-service") %>%
+  dplyr::filter(.,group=="pre-service") %>%
   select(.,factor_classroom, factor_workload, factor_appearance, factor_colleagues,
          factor_parents, factor_grading, factor_preparation, factor_autonomy) -> temp.df
 paste("T",1:nrow(temp.df),sep="")->labels
 hclust(dist(temp.df))->hteach # Do this clustering first
 plot(hteach,labels=labels, main= "")
 
-From here, we see if we can identify what is important about the clusters, often by doing significance testing between the clusters.
+# From here, we see if we can identify what is important about the clusters, often by doing significance testing between the clusters.
 
 
-How many clusters to use?
-Some answers:
-a) fvis() in the factoextra package
-b) topology: Essentially, long lines on the dendograms
-c) [Others that I'm not familiar enough with](http://www.rpubs.com/s_ritesh/Deciding_Clusters) to comment on except to say that they sometimes differ.
-d) [Still others](https://www.statmethods.net/advstats/cluster.html)
+# How many clusters to use?
+# Some answers:
+# a) fvis() in the factoextra package
+# b) topology: Essentially, long lines on the dendograms
+# c) [Others that I'm not familiar enough with](http://www.rpubs.com/s_ritesh/Deciding_Clusters) to comment on except to say that they sometimes differ.
+# d) [Still others](https://www.statmethods.net/advstats/cluster.html)
 
-What else can we cluster?
+# What else can we cluster?
   
-  HW 1: See Blackboard
+#   HW 1: See Blackboard
 
-__Class 5: 28 January 2019__
-More on [How many clusters?](https://towardsdatascience.com/10-tips-for-choosing-the-optimal-number-of-clusters-277e93d72d92)
+# __Class 5: 28 January 2019__
+# More on [How many clusters?](https://towardsdatascience.com/10-tips-for-choosing-the-optimal-number-of-clusters-277e93d72d92)
 
-```{r clusters}
+# ```{r clusters}
 c(
   "magrittr",
   "cluster",
@@ -1553,8 +1554,6 @@ c(
   "corrplot",
   "GGally",
   "ggiraphExtra",
-  
-  
 ) -> package_names  
 
 data("all.mammals.milk.1956")
@@ -1623,8 +1622,8 @@ fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statisti
 
 
 
-__Class 6: 30 January 2019__
-Network stuff:
+# __Class 6: 30 January 2019__
+# Network stuff:
   
 data(florentine)
 plot(flobusiness)
@@ -1683,67 +1682,37 @@ netlm(flobusiness, flomarriage, nullhyp = "qap")
 
 
 
-Hypothesis Testing (Chapter 8); more ERGM?
-  Permutation hypotheses
-More stuff (dyadic hypotheses, node-level hypotheses, whole-network hypotheses)
+# Hypothesis Testing (Chapter 8); more ERGM?
+#   Permutation hypotheses
+# More stuff (dyadic hypotheses, node-level hypotheses, whole-network hypotheses)
 
 
-Hypothesis Testing On Networks (BEJ 8)
-__Class 7: 4 February 2019__
+# Hypothesis Testing On Networks (BEJ 8)
+# __Class 7: 4 February 2019__
 # ERGM
-BEJ 8: What's important about ERGM? $\S$8.7, first paragraph.
+# BEJ 8: What's important about ERGM? $\S$8.7, first paragraph.
 
-Let's look at some examples
+# Let's look at some examples
 
-[ERGM Tutorial](https://michaellevy.name/blog/ERGM-tutorial/)
+# [ERGM Tutorial](https://michaellevy.name/blog/ERGM-tutorial/)
 
-[ERGM Vignettes](https://cran.r-project.org/web/packages/ergm/vignettes/ergm.pdf)
+# [ERGM Vignettes](https://cran.r-project.org/web/packages/ergm/vignettes/ergm.pdf)
 
-[Another tutorial](https://www.win.tue.nl/~rmcastro/tmp/YES_VI/files/ERGM.pdf) - pp 23-27 for what is new/helpful here
-
-
+# [Another tutorial](https://www.win.tue.nl/~rmcastro/tmp/YES_VI/files/ERGM.pdf) - pp 23-27 for what is new/helpful here
 
 
 
 
 
-Node characteristics
-Edge characteristics
-Layout (automatic, and adjusted; add cluster characteristics when clusters are done)
-
-
-Cohesion
-Reciprocity
-Transitivity and clustering
-Triads
-Centralization & core-periphery indices
 
 
 
-keyplayer package
-Types of centrality
-
-
-project topics due
-cliques
-algorithms
-factions
-modularity
-directed networks, 
-
-
-
-structural
-blockmodels
-
-
-
-Data Collection & Management (Chapters 4 & 5); contagion? API and scraping (e.g., scrape the Fisher Athletics rosters for name, sport, and major(s))
+# Data Collection & Management (Chapters 4 & 5); contagion? API and scraping (e.g., scrape the Fisher Athletics rosters for name, sport, and major(s))
 
 
 
 
-For matrix 5.7:
+# For matrix 5.7:
   # For the first, we need to know how many authors, and how
   #  many links are in each department.
   rowSums(scientists960_mat) - 
