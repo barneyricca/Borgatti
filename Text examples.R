@@ -1,3 +1,4 @@
+## Preamble ####
 # The following script is a "port" of Borgatti, Everett, & Johnson (2nd
 #  edition) to R.
 # In a couple locations, I have used fread() to open ".dat" files, which is
@@ -7,12 +8,19 @@
 #  various sources.
 #
 # If you installed the package from GitHub, you should have the data as well.
+#
+# This was prepared/updated for use by GDAT 622 students at
+#  St. John Fisher College; hence, the comments about what is
+#  known or not known apply to that audience.
+#
 
 ## Preparation ####
 
 #
 # There are several other potentially useful packages, including:
 #   keyplayer - advanced centality methods
+#   gplot -
+#   graphlayouts
 #   multiplex - for multplex graphs
 #   ndtv - Network Dynamic Temporal Visualization
 #   RSiena - particularly useful for longitudinal networks; see Snijders' 
@@ -24,7 +32,8 @@
 #  included here.
 
 {
-  c("ca",            # Correspondence analysis
+  c("alphahull",     # To calculate the convex hull
+    "ca",            # Correspondence analysis
     "conflicted",    # To deal with conflicting function names
                      # I've had some strangeness with this
                      #  script. I suspect package:conflicted,
@@ -38,9 +47,11 @@
     "igraph",        # Basic network tools; we'll use statnet mostly
     "igraphdata",    # Some useful datasets
     "intergraph",    # Translate between igraph and statnet formats
+    "lmperm",        # To do permutation tests
 #  "qgraph",         #
-    "statnet"        # A suite of network tools, including ERGM and more
-#  "tidyverse"       # Data manipulation
+    "statnet",      # A suite of network tools, including ERGM and more
+#  "tidyverse",      # Data manipulation
+    "xlsx"
   ) -> package_names
   
   for (package_name in package_names) {
@@ -183,7 +194,6 @@ read.ucinet <- function(filename) {
   return(mat)
 }
 
-
 ## Chapter 1 ####
 # No code
 
@@ -199,7 +209,7 @@ network::add.edges(F2.1,
           head = c(2, 3, 4, 5, 1))
 #          head = c("B", "C", "D", "A", "E"))
 
-## A Note about plotting ####
+### A Note about plotting ####
 # Generic network plotting has a random aspect to it, so setting the seed
 #  helps to make it reproducible. There are a number of ways to layout the
 #  nodes on a network, and we'll look at some of those, but network plotting
@@ -691,6 +701,7 @@ for(i in 1:length(status)) {
 }
 status_alter_mat
 
+## Still to do: Figure 5.7
 ## Chapter 6 ####
 
 # Matrix 6.1
@@ -1120,12 +1131,321 @@ plot.network(salmon_net,
 
 # Figure 7.16
 # Figure 7.16(a)
+fread(file = here("Data/davis.csv"),
+      header = TRUE) -> davis
+as.matrix(davis[,-1]) -> davis_mat
+davis$V1 -> rownames(davis_mat)
+davis_mat %*% t(davis_mat) -> davis_ord    # This is a way to make an 
+#  ordination plot on the rows
 
-# Figure 7.16(a)
 
-# Figure 7.16(a)
+graph_from_adjacency_matrix(davis_ord,
+                            mode = "undirected",
+                            diag = FALSE,
+                            weighted = TRUE) -> davis_gr
+subgraph.edges(graph = davis_gr,
+                 eids = E(davis_gr)[which(E(davis_gr)$weight > 1)]) -> 
+  davis_gr_1
 
-# Figure 7.16(a)
+
+layout_with_kk(davis_gr_1,
+               weights = 1/E(davis_gr_1)$weight) -> xy
+set.seed(42)
+plot(davis_gr_1,
+     layout = xy,
+     edge.width = E(davis_gr_1)$weight,
+     vertex.size = 6,
+     vertex.label.dist = 1)
+
+
+# Figure 7.16(b)
+fread(file = here("Data/davis.csv"),
+      header = TRUE) -> davis
+as.matrix(davis[,-1]) -> davis_mat
+davis$V1 -> rownames(davis_mat)
+davis_mat %*% t(davis_mat) -> davis_ord    # This is a way to make an 
+#  ordination plot on the rows
+
+
+graph_from_adjacency_matrix(davis_ord,
+                            mode = "undirected",
+                            diag = FALSE,
+                            weighted = TRUE) -> davis_gr
+subgraph.edges(graph = davis_gr,
+               eids = E(davis_gr)[which(E(davis_gr)$weight > 2)]) -> 
+  davis_gr_2
+
+
+layout_with_kk(davis_gr_2,
+               weights = 1/E(davis_gr_2)$weight) -> xy
+set.seed(42)
+plot(davis_gr_2,
+     layout = xy,
+     edge.width = E(davis_gr_2)$weight,
+     vertex.size = 6,
+     vertex.label.dist = 1)
+
+
+# Figure 7.16(c)
+fread(file = here("Data/davis.csv"),
+      header = TRUE) -> davis
+as.matrix(davis[,-1]) -> davis_mat
+davis$V1 -> rownames(davis_mat)
+davis_mat %*% t(davis_mat) -> davis_ord    # This is a way to make an 
+#  ordination plot on the rows
+
+
+graph_from_adjacency_matrix(davis_ord,
+                            mode = "undirected",
+                            diag = FALSE,
+                            weighted = TRUE) -> davis_gr
+subgraph.edges(graph = davis_gr,
+               eids = E(davis_gr)[which(E(davis_gr)$weight > 3)]) -> 
+  davis_gr_3
+
+
+layout_with_kk(davis_gr_3,
+               weights = 1/E(davis_gr_3)$weight) -> xy
+set.seed(42)
+plot(davis_gr_3,
+     layout = xy,
+     edge.width = E(davis_gr_3)$weight,
+     vertex.size = 6,
+     vertex.label.dist = 1)
+
+
+# Figure 7.16(d)
+fread(file = here("Data/davis.csv"),
+      header = TRUE) -> davis
+as.matrix(davis[,-1]) -> davis_mat
+davis$V1 -> rownames(davis_mat)
+davis_mat %*% t(davis_mat) -> davis_ord    # This is a way to make an 
+#  ordination plot on the rows
+
+
+graph_from_adjacency_matrix(davis_ord,
+                            mode = "undirected",
+                            diag = FALSE,
+                            weighted = TRUE) -> davis_gr
+subgraph.edges(graph = davis_gr,
+               eids = E(davis_gr)[which(E(davis_gr)$weight > 4)]) -> 
+  davis_gr_4
+
+
+layout_with_kk(davis_gr_4,
+               weights = 1/E(davis_gr_4)$weight) -> xy
+set.seed(42)
+plot(davis_gr_4,
+     layout = xy,
+     edge.width = E(davis_gr_4)$weight,
+     vertex.size = 6,
+     vertex.label.dist = 1)
+
+# Figure 7.17
+fread("http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/wiring.dat",
+      skip = 4,               # Must look at the data structure to be sure
+      #  of this
+      header = FALSE,
+      nrows = 14)$V1 -> employees
+as.matrix(fread("http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/wiring.dat",
+                skip = 41,    # Must look at the data structure to be sure of
+                #  this
+                nrows = 14)) -> games_mat
+employees -> rownames(games_mat) -> colnames(games_mat)
+network(games_mat, directed = FALSE) -> games_net
+
+set.seed(42)
+plot.network(games_net,
+             label = network.vertex.names(games_net),
+             mode = "fruchtermanreingold",           # Nodes "push"
+             #  each other away
+             layout.par = list(niter = 500),         # Random start with 500
+             #  iterations
+             edge.lwd = 2,
+             vertex.col = 8,
+             vertex.sides = 4,    # This doesn't round the corners of the 
+             #  verices
+             vertex.cex = 3,
+             vertex.border = 1,
+             pad = 1)             # My plots clip labels otherwise
+
+# Figure 7.18
+fread("http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/wiring.dat",
+      skip = 4,               # Must look at the data structure to be sure
+      #  of this
+      header = FALSE,
+      nrows = 14)$V1 -> employees
+as.matrix(fread("http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/wiring.dat",
+                skip = 55,    # Must look at the data structure to be sure of
+                #  this
+                nrows = 14)) -> conflict_mat
+employees -> rownames(conflict_mat) -> colnames(conflict_mat)
+network(conflict_mat, directed = FALSE) -> conflict_net
+
+set.seed(42)
+plot.network(conflict_net,
+             label = network.vertex.names(conflict_net),
+             mode = "fruchtermanreingold",           # Nodes "push"
+             #  each other away
+             layout.par = list(niter = 500),         # Random start with 500
+             #  iterations
+             edge.lwd = 2,
+             vertex.col = 8,
+             vertex.sides = 4,    # This doesn't round the corners of the 
+             #  verices
+             vertex.cex = 3,
+             vertex.border = 1,
+             pad = 1)             # My plots clip labels otherwise
+
+# Matrix 7.1
+matrix(c(1.000, 0.684, 0.483, 0.440, 0.300,
+         0.684, 1.000, 0.582, 0.543, 0.335,
+         0.483, 0.582, 1.000, 0.613, 0.341,
+         0.440, 0.543, 0.613, 1.000, 0.371,
+         0.300, 0.335, 0.341, 0.371, 1.000),
+       nrow = 5,
+       ncol = 5,
+       byrow = TRUE,
+       dimnames = list(c("T1", "T2", "T3", "T4", "T5"),
+                       c("T1", "T2", "T3", "T4", "T5"))) -> BandB_mat
+BandB_diss = 1 - BandB_mat    # Dissimilarity (not similarity!) matrix
+
+# Figure 7.19
+cmdscale(as.dist(BandB_diss), eig = TRUE, k = 2) -> BandB_fit
+
+x <- BandB_fit$points[, 1]
+y <- BandB_fit$points[, 2]
+# Don't really need a network for this, eh?
+{
+  plot(x, y, pch = 0,
+       ylim = c(-0.3, 0.3),     # Set the ylim a bit big so the label fits
+       ann = FALSE,             # Do not annotate the axes
+       axes = FALSE,            # Do not show the axes
+       frame.plot = TRUE)
+  text(x, y,
+       labels = colnames(BandB_mat),
+       pos = 3)
+}
+
+# Figure 7.20 (almost)
+# I'm not convinced that these data are intepreted correctly.
+#  Even when I dichotomize them, they still don't come anywhere near
+#  what BEJ have. Oh, well.
+read.xlsx(here("Data/burkhardt.xlsx"),
+          sheetName = "T1") -> burkhardt_t1
+burkhardt_t1[,1] -> rownames(burkhardt_t1)
+burkhardt_t1[,-1] -> burkhardt_t1
+as.matrix(burkhardt_t1) -> burkhardt_t1
+
+network(burkhardt_t1,
+        directed = FALSE) -> burk_t1_net
+set.seed(42)
+plot(burk_t1_net) # Skip the label of R53
+
+# Figure 7.21
+# I'm not convinced that these data are intepreted correctly.
+#  Even when I dichotomize them, they still don't come anywhere near
+#  what BEJ have. Oh, well.
+read.xlsx(here("Data/burkhardt.xlsx"),
+          sheetName = "T5") -> burkhardt_t5
+burkhardt_t5[,1] -> rownames(burkhardt_t5)
+burkhardt_t5[,-1] -> burkhardt_t5
+as.matrix(burkhardt_t5) -> burkhardt_t5
+
+network(burkhardt_t5,
+        directed = FALSE) -> burk_t5_net
+set.seed(42)
+plot(burk_t5_net) # Skip the label of R53
+
+# Figure 7.23
+# There is a problem in the dataset (at least as far
+#  as ca() is concerned: One row (JEAN2) is all zeroes. This is,
+#  mathematically, bad, and ca() doesn't appear to have alternate
+#  methods, so there will be matrix problems.
+# The only way around this that I can see is to delete JEAN
+#  from the analyses. Based on the BEJ plot, they may have 
+#  JEAN2 at (0,0), but that shouldn't be used for missing
+#  data.
+# Hence, I'm going to delete JEAN and JEAN2 from consideration.
+fread(file = here("Data/workshop.csv"),
+      header = TRUE) -> workshop
+workshop[-27,] -> workshop  # JEAN2 row
+workshop[-10,] -> workshop  # JEAN row
+workshop$V1 -> work_names
+as.matrix(workshop[,-1]) -> workshop
+workshop[,-10] -> workshop  # JEAN column
+work_names -> rownames(workshop)
+
+ca(workshop, nd = 2) -> work_ca
+# I find this method easier for this than trying to
+#  fiddle with plot.ca().
+{
+  plot(work_ca$rowcoord[,1],work_ca$rowcoord[,2],
+       cex = 0.7,
+       ann = FALSE,
+       axes = FALSE,
+       frame.plot = TRUE)
+  text(work_ca$rowcoord[,1],work_ca$rowcoord[,2],
+       labels = work_names,
+       pos = 4,
+       cex = 0.6)
+  arrows(x0 = work_ca$rowcoord[1:16,1],
+         y0 = work_ca$rowcoord[1:16,2],
+         x1 = work_ca$rowcoord[17:32,1],
+         y1 = work_ca$rowcoord[17:32,2],
+         length = 0.08)  # This is annoying; it depends a lot
+                         #  on the size of the picture.
+                         # Zoom in on the final picture.
+}
+
+# Figure 7.24
+fread(file = here("Data/Supremeall.csv"),
+      header = TRUE) -> supreme
+supreme$V1 -> sup_names
+as.matrix(supreme[,-1]) -> supreme
+sup_names -> rownames(supreme)
+
+ca(supreme, nd=2) -> supreme_ca
+plot(supreme_ca) # Again, backwards from BEJ
+
+# Figure 7.25
+fread(file = here("Data/Supremeall.csv"),
+      header = TRUE) -> supreme
+supreme$V1 -> sup_names
+as.matrix(supreme[,-1]) -> supreme
+sup_names -> rownames(supreme)
+
+ca(supreme, nd=2) -> supreme_ca
+
+# ID Renquist
+seq(from = 1, to = 90, by = 9) -> renquist
+{
+  plot(supreme_ca$rowcoord[,1],supreme_ca$rowcoord[,2],
+       cex = 0.7,
+       ann = FALSE,
+       axes = FALSE,
+       frame.plot = TRUE)
+  text(supreme_ca$rowcoord[,1],supreme_ca$rowcoord[,2],
+       labels = sup_names,
+       pos = 4,
+       cex = 0.6)
+  arrows(x0 = supreme_ca$rowcoord[renquist[1:9],1],
+         y0 = supreme_ca$rowcoord[renquist[1:9],2],
+         x1 = supreme_ca$rowcoord[renquist[2:10],1],
+         y1 = supreme_ca$rowcoord[renquist[2:10],2],
+         length = 0.08)  # This is annoying; it depends a lot
+                         #  on the size of the picture.
+                         # Zoom in on the final picture.
+}
+
+# Figure 7.26
+# Community structure does this too.
+# I won't do this one right now because I can't find the
+#  data needed to do this. However...
+# The function you want is alphahull::ahull(). Once
+#  you have the coordinates of the liberal, swing, and
+#  conservative nodes, you can feed that into ahull(),
+#  and get out the resulting boundaries.
 
 ## Chapter 8 ####
 # Figure 8.1
@@ -1162,599 +1482,339 @@ qaptest(padg_arr,
 #  later.
 summary(padg_qap)
 
-# Figure 8.2
-
-
-# From:
-#  https://github.com/kateto/Network_Analysis_R_Examples/blob/master/R%20Scripts/Comm645-MRQAP.R
-# Multiple regression for network variables: MRQAP
-#=============================================================#
-
-
-# Krackhardt data
-
-
-# We can similarly use permutaton tests for a linear regression
-# on network variables - known as MRQAP (multiple regression QAP)
-
-# Note that the matrices used in the regression can contain different relations, the same
-# relation at different points in time, or even dyadic covariate (attribute) data. For instance, 
-# you can have a matrix of social ties as a DV and a same-gender attrubute matrix as an IV.
-# (i.e. a matrix where (i,j)=1 if i and j are both female(male), and 0 if they have different genders)
-
-# Let's create an array containing 3 random networks, each with 10 nodes:
-
-x <- rgraph(10, 3) 
-x[1,,] # matrix 1
-x[2,,] # matrix 2
-x[3,,] # matrix 3
-
-# A matrix constructed as a linear combination of the first two networks in x:
-
-y <- 3*x[1,,] + 5*x[2,,] + 7
-
-# Now let's run a network regression of y on x and see what happens. 
-# netlm takes a single matrix or network object as its first argument (DV) 
-# and a stack of matrices (array containing all the IVs) or a list of 
-# network objects as its second argument.
-
-net.mod.1 <- netlm(y, x, reps=100)
-summary(net.mod.1)
-
-# Oh look - the first two parameters are significant and close to 3 and 5, and the intercept is 7
-# Just as you'd expect based on the way we constructed y.
-
-
-# Figure 8.3
-
-# Load Newcomb's Fraternity Data
-array(0,
-      dim = list(15, 17, 17)) -> newcomb_arr
-for(i in 1:15) {
-as.matrix(fread("http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/newfrat.dat",
-                skip = (3 + i * 17),
-                nrows = 17
-                )) -> new_array[i,,]
-}
-# If the data aren't there, can get them this way:
-#  load(file = "Data/newcomb.RData")
-
-set.seed(24322)             # This is different than a UCINET seed of 24322
-
-qaptest(newcomb_arr,
-        FUN = gcor,
-        g1 = 1,
-        g2 = 2,
-        reps = 50000) -> newcomb_qap   # BEJ do 50k reps
+# Figures 8.2 & 8.3
+# These are a lot different in R. Additionally, it doesn't
+#  appear that BEJ have defined "reciprocity" or "transitivity" 
+#  yet. (They have sort of defined the former in Chapter 5, but
+#  we didn't officially do that chapter!)
+# Hence, we'll do this elsewhere.
 
 # Figure 8.4
-
-# Campnet
+# Note that the campnet data are already dichotomized to
+#  the top three
+read.ucinet.header("Data/campnet") -> camp_hdr
+read.ucinet("Data/campnet") -> camp_mat
+camp_hdr$dim.labels[[1]] -> rownames(camp_mat) -> colnames(camp_mat)
+network(camp_mat,
+        directed = TRUE) -> camp_net
+set.seed(42)
+plot.network(camp_net,
+             label = network.vertex.names(camp_net),
+             pad = 1)
 
 # Matrix 8.1
+# Age differences in the Krackhardt data
+fread(here("Data/High-Tec-Attributes.csv")) -> hitech_attr
+matrix(0,
+       nrow = nrow(hitech_attr),
+       ncol = nrow(hitech_attr)) -> age_diff_mat
+for(i in 1:nrow(hitech_attr)) {
+  for(j in 1:nrow(hitech_attr)) {
+    hitech_attr$AGE[i] - hitech_attr$AGE[j] ->
+      age_diff_mat[i,j]
+  }
+}
 
+# Figure 8.5
+as.matrix(
+  fread(here("Data/Krack-High-Tec_advice_Friendship_Reports_To.csv"),
+      header = TRUE)) -> reports_mat
+reports_mat[,-1] -> reports_mat
+array(0,
+      dim = list(2, nrow(hitech_attr), nrow(hitech_attr))) -> 
+  hi_tech_arr
+reports_mat -> hi_tech_arr[1,,]
+age_diff_mat -> hi_tech_arr[2,,]
+set.seed(42)
+qaptest(hi_tech_arr,
+        gcor,
+        g1 = 1,
+        g2 = 2,
+        reps = 5000) -> F8.5
+summary(F8.5)
+
+# Matrix 8.2
+matrix(rep(hitech_attr$AGE,
+           nrow(hitech_attr)),
+       nrow = nrow(hitech_attr),
+       ncol = nrow(hitech_attr),
+       byrow = TRUE) -> M8.2
+M8.2
+
+# Figure 8.6
+read.ucinet.header("Data/campnet") -> camp_hdr
+read.ucinet("Data/campnet") -> camp_mat
+
+read.ucinet.header("Data/campsex") -> camp_attr_hdr
+read.ucinet("Data/campsex") -> camp_attr_mat
+nrow(camp_attr_mat) -> rows
+
+matrix(0, nrow = rows, ncol = rows) -> sex_diff_mat
+for(i in 1:rows) {
+  for(j in i:rows) {
+    if(camp_attr_mat[i,1] == camp_attr_mat[j,1]) {
+      1 -> sex_diff_mat[i,j] -> sex_diff_mat[j,i]
+    }
+  }
+}
+
+array(0,
+      dim = list(2, rows, rows)) -> camp_arr
+camp_mat -> camp_arr[1,,]
+sex_diff_mat -> camp_arr[2,,]
+qaptest(camp_arr,
+        gcor,
+        g1 = 1,
+        g2 = 2,
+        reps = 50000) -> F8.6
+summary(F8.6)
+
+# Figure 8.7
+# Well, if I knew which data were being used, I'd do this one.
+# However, BEJ are really using this example simply to 
+#  demonstrate the differences between resampling approaches
+#  to p-values and the classical approaches to p-values. I
+#  believe that you already know this one, so no loss.
+
+# Sections 8.7 and 8.8
+# ERGM and SAOM are handled much differently in R than in UCINET.
+#  Hence, trying to just recreate the figures here is not only
+#  frustrating for the instructor, it is likely to be of limited
+#  help. See the appropriate folders in the Blackboard course site
+#  for this material.
 
 ## Chapter 9 ####
 
+# Figure 9.1
+# Nothing to see here...
+
+# Figure 9.2
+# No data
+
+# Table 9.1 & Figure 9.3
+# Read these from the UCI data:
+read.ucinet.header("Data/campnet") -> camp_hdr
+read.ucinet("Data/campnet") -> camp_mat
+camp_hdr$dim.labels[[1]] -> rownames(camp_mat) -> colnames(camp_mat)
+
+# Get and set the vertex attributes
+read.ucinet.header("Data/campsex") -> camp_sex_hdr
+read.ucinet("Data/campsex") -> camp_sex_mat  # Sex is column 1
+
+# We'll construct the table by removing from the matrix
+#  the links that don't belong, and then computing the density. 
+#  This is best done via the matrices. To make life easier, we should
+#  break the matrices into M/F blocks first. By good fortune, the
+#  matrices are already sorted into M (camp_sex_mat[,1]==2) & F 
+#  (camp_sex_mat[,1] == 1). The first 8 are F, the last 10 are M
+
+camp_mat[1:8, 1:8] -> FF_mat
+camp_mat[1:8, 9:18] -> FM_mat
+camp_mat[9:18, 9:18] -> MM_mat
+camp_mat[9:18, 1:8] -> MF_mat
+
+
+network(FF_mat, directed = TRUE) -> FF_net
+network(FM_mat, directed = TRUE) -> FM_net
+network(MM_mat, directed = TRUE) -> MM_net
+network(MF_mat, directed = TRUE) -> MF_net
+
+list(FF_net, FM_net, MM_net, MF_net) -> sub_mat
+gden(sub_mat)
+# Notice: the FF & MM densities are the same as BEJ, but the
+#  FM & MF are approximately half of what BEJ report; I haven't
+#  tracked down that factor, but it is undoubtedly due to the averaging
+#  issues in the definition.
+
+network(camp_mat,
+        directed = TRUE) -> camp_net
+network::set.vertex.attribute(camp_net, "Sex", camp_sex_mat[,1])
+set.seed(42)
+plot.network(camp_net,
+             label = network.vertex.names(camp_net),
+             vertex.sides = 
+               ifelse(camp_net %v% "Sex" == 2, 4, 50),
+             vertex.rot = 45,   # squares, not diamonds
+             vertex.cex = 3,
+             pad = 1)
+
+# Figure 9.4
+# Nothing to see here
+
+# Figure 9.5
+# Nothing to see here. The question is: Do you need to know this
+#  nomenclature? Unless you are going to be engaging with the 
+#  literature, I suspect not. 
+
+# Table 9.2 & Figure 9.6
+# The network data used to create these are not provided. However,
+#  sna::triad.census() applied to the appropriate network would give
+#  those results. 
+
+# Figure 9.7
+# Nothing to see here
+
+# Figure 9.8
+# Nothing to see here
+
+# Figures 9.9 & 9.10
+# No data provided; nothing to see here
 
 ## Chapter 10 ####
+# FWIW, package:CINNA does a bunch of centralities.
+#  For example, try this (if CINNA is installed):
+CINNA::proper_centralities(zachary)
+# This indicates that there are 49 appropriate centrality measures
+#  for the undirected Zachary karate measruement. For directed
+#  networks:
+igraphdata::data("foodwebs")    # A list of food web igraphs
+CINNA::proper_centralities(foodwebs$ChesLower)
+# This indicates that there are 51 appropriate centrality measures
+#  for the directed Lower Chesapeake food web
+# Obviously, centrality is not a clearly defined thing yet.
+#  package:keyplayer does even more stuff.
 
+# Figure 10.1
+read.ucinet.header(here("Data/campnet")) -> camp_hdr
+read.ucinet(here("Data/campnet")) -> camp_mat
 
-## Chapter 11 ####
+network(camp_mat,
+        directed = FALSE) -> camp_net  # directed = FALSE symmetrizes it
+(sna::degree(camp_net)) / 2 -> deg     # Don't double count!
 
+# We know the first 8 are F, and the second 8 are M, from previous
+#  work.
+data.frame("Degre" = deg,
+           "nDegr" = deg / sum(deg),
+           "Sex" = c(rep("F",8), rep("M",10))) -> degree_df
+rownames(camp_mat) -> rownames(degree_df)
 
-## Chapter 12 ####
+# Once again, I don't get the same normalization that BEJ do. Alas
+degree_df[,1:2]
 
+# Figure 10.2
+# First approach, lmPerm::aovp
+summary(aovp(Degre ~ Sex, data = degree_df))  # No difference
 
-## Chapter 13 ####
+# Second approach: Permutation via base R
+mean(degree_df$Degre[degree_df$Sex=="M"]) - 
+  mean(degree_df$Degre[degree_df$Sex=="M"]) -> obsdiff
 
-
-## Chapter 14 ####
-
-
-
-## Other Stuff ####
-
-# This is mostly leftover stuff from elsewhere
-
-# Lazega Lawyers Data Set
-# This is part of the data set that Adhikari & Dabbs (2018) use. (Only the 36 partners are included; the 35 associates are not. There are, apparently, some ongoing privacy issues with the data set.) First, let's look at the data set:
-data(lazega)               # Data in the format of the older igraph package.
-if(graph_version(lazega) != "0.8.0") {
-  upgrade_graph(lazega) -> lazega      # Upgrades to version 0.8.0
-}
-head(elist.lazega)
-str(v.attr.lazega)
-
-# Look at the help on lazega to see how the data are coded.
-
-# Now, these data are already a network, so we don't yet have to create a network. Let's explore some plotting:
-
-plot(lazega)     # Not very helpful
-# Following A & D
-layout_with_kk(lazega) -> lazega_kk_layout
-plot(lazega, layout = lazega_kk_layout)    # Laid out, but not colored
-{
-  plot(lazega, layout = lazega_kk_layout,    # Layout and colored by status
-       vertex.color = vertex_attr(lazega)$Status,
-       vertex.label = NA)
-  legend("topright", legend = c("Partner", "Associate"), 
-         fill = categorical_pal(2))
-}
-
-{                                            # But I like (better) labels
-  plot(lazega, layout = lazega_kk_layout,    # Layout and colored by status
-       vertex.color = vertex_attr(lazega)$Status,
-       vertex.size = 20,
-       vertex.label.cex = 0.7)
-  legend("topright", legend = c("Partner", "Associate"), 
-         fill = categorical_pal(2))
+resamp_means = function(raw_data, labels){
+  resample_labels = sample(labels)
+  unique(labels) -> uniq_lab
+  resample_diff = mean(raw_data[resample_labels==uniq_lab[1]]) - 
+    mean(raw_data[resample_labels==uniq_lab[2]])
+  return(resample_diff)
 }
 
-# Do college alumni link together?
-{                                            # But I like (better) labels
-  plot(lazega, layout = lazega_kk_layout,    # Layout and colored by status
-       vertex.color = vertex_attr(lazega)$School,
-       vertex.size = 20,
-       vertex.label.cex = 0.7)
-  legend("topleft", legend = c("Harvard or Yale", "UConn", "Other"), 
-         fill = categorical_pal(3))
-}
-
-# Much more can be done, as well; this is just some playing around with plots.
-
-# Let's put some vertex data in.
-set_vertex_attr(camp_gr, 
-                "Sex", 
-                # index=V(camp_gr), 
-                value = camp_sex$Sexo) -> camp_gr
-# And use this in a plot
-c("circle", "square") -> shapes
-plot(camp_gr, 
-     vertex.shape = shapes[V(camp_gr)$Sex])
-
-# Now, for the statnet version
-network(camp_mat) -> camp_net  # statnet/sna version
-gplot(camp_net)
-
-network::set.vertex.attribute(camp_net, "Sex", camp_sex$Sexo)
-# camp_sex$role -> camp_net %v% "Role"
-# The previous line is no longer equivalent to:
-network::set.vertex.attribute(camp_net, "Role", camp_sex$role)
-
-gplot(camp_net,
-      vertex.cex = 2.5,
-      vertex.col = camp_net %v% "Role",
-      vertex.sides = (camp_net %v% "Sex")+2)
-
-
-# Or, using intergraph
-asNetwork(camp_gr) -> camp2_net  # Transfers vertex and edge attributes
-plot(camp2_net)
-gplot(camp2_net,
-      vertex.cex = 2.5,
-      vertex.col = camp2_net %v% "Role",
-      vertex.sides = (camp2_net %v% "Sex")+2)
-
-
-# And, if you are really serious about needing to plot, you should either use
-# [ggnetwork](https://cran.r-project.org/web/packages/ggnetwork/vignettes/ggnetwork.html)
-# or tkplot, which allows you to manual adjust things. (But, it is rather buggy and twitchy, so you need to really want to do this before I would recommend it.)
-
-
-
-# Some made-up data for F and E
-matrix(c(0, 0, 0, 1, 0,
-         0, 0, 0, 1, 0,
-         1, 0, 0, 0, 1,
-         1, 1, 0, 0, 0,
-         0, 0, 1, 0, 0),
-       nrow = 5,
-       ncol = 5,
-       byrow = TRUE) -> Fr
-
-matrix(c(0, 0, 0, 0, 1,
-         0, 0, 0, 0, 0,
-         0, 1, 0, 0, 0,
-         0, 0, 0, 0, 1,
-         0, 0, 0, 1, 0),
-       nrow = 5,
-       ncol = 5,
-       byrow = TRUE) -> En
-
-Fr %*% En
-Fr * En        # Incorrect!!!!!
-En %*% Fr
-Fr %*% Fr
-Fr - En -> Re
-Re
-
-
-# Let's figure out how these work, exactly. (See pp. 23-25 of BEJ). _Fr %*% Fr_ is the number of times that _i_ has a friend that has _j_ as a friend. We can (and will, in BEJ 8,) determine if these things are more likely than we would expect by chance; in other words, we can do some inference.
-
-# Harrison White (and others) looked at marriage rules and descent rules in various societies. In one scenario, he comes up with a number of interesting ideas and network analyses, encapsulated in 8 axioms:
-  
-# 1. _n_ clans in society
-# 2. Permanent marriage rule (what clan marries what other clan)
-# 3. Men from two different clans cannot marry women of the same clan
-# 4. All children are assigned to a single clan (determined by mother and father)
-# 5. Children whose fathers are in different clans must themselves be in different clans
-# 6. A man can never marry a woman of his own clan.
-# 7. Every person has at least one relative in every other clan.
-# 8. "Whether two people who are related by marriage and descent links are in the same clan depends only on the kind of relationship, not on the clan either one belongs to".
-# (White, as quoted in Bradley & Meek, 1986.)
-
-# For example, Bradley & Meek use 5 clans (P, Q, R, S, and T), and the matrices:
-#   \[
-#     M = marriage = \begin{equation}
-#     \begin{bmatrix}
-#     0 & 1 & 0 & 0 & 0 \\ 
-#     0 & 0 & 1 & 0 & 0 \\ 
-#     1 & 0 & 0 & 0 & 0 \\
-#     0 & 0 & 0 & 0 & 1 \\
-#     0 & 0 & 0 & 1 & 0 \end{bmatrix} 
-#     \end{equation}
-#     \]
-
-# \[
-#   D = descent = \begin{equation}
-#   \begin{bmatrix}
-#   0 & 0 & 0 & 0 & 1 \\
-#   1 & 0 & 0 & 0 & 0 \\
-#   0 & 1 & 0 & 0 & 0 \\ 
-#   0 & 0 & 1 & 0 & 0 \\ 
-#   0 & 0 & 0 & 1 & 0 \end{bmatrix} 
-#   \end{equation}
-#   \]
-# In the marriage matrix, the rows (columns) are the husband's (wife's) clan; in descent matrix, the rows (columns) are the father's (child's) clan.
-
-# So, we can use this to find answer questions like what is the clan of my mother's brother's daughter? We do this by:
-  
-#   * Transpose (i.e., exchange the rows and columns of) the descent matrix to find my father's clan. For matrices like we have, known as permutation matrices, the inverse and the transpose are the same operation. Inverting a matrix can be tricky, but we have R, so _solve(D)_ gives the inverse of C. _t(D)_ gives the transpose.
-# * Use the marriage matrix to find my mother's clan
-# * That clan is my mother's brother's clan
-# * Use the descent matrix to find my mother's brother's daughter's clan
-
-# In matrix notation, $t(D) %*% M %*% D$ gives the answer. Let's do that.
-# ```{r MBD}
-matrix(c(0, 1, 0, 0, 0,
-         0, 0, 1, 0, 0,
-         1, 0, 0, 0, 0,
-         0, 0, 0, 0, 1,
-         0, 0, 0, 1, 0),
-       nrow = 5,
-       ncol = 5,
-       byrow = TRUE) -> M
-
-matrix(c(0, 0, 0, 0, 1,
-         1, 0, 0, 0, 0,
-         0, 1, 0, 0, 0,
-         0, 0, 1, 0, 0,
-         0, 0, 0, 1, 0),
-       nrow = 5,
-       ncol = 5,
-       byrow = TRUE) -> D
-
-t(D) %*% M %*% D
-
-# ```
-# The row is my clan, while the column is my MBD's clan.
-
-# Sometimes, we see some interesting block structure to these matrices. (And more often, we see some approximately block structure in the matrices; these approximate blocks are called communities.)
-
-# We can also have strength of ties, using numbers larger than one. For example, we could use for entries the number of times _i_ called _j_ in a week; those numbers would all be non-negative, but may be larger than 1.
-
-# Because of their usefulness, almost all computations on networks are actually done with matrices.
-
-# __Class 4: 23 January 2019__
-# Two "quick" review questions:
-
-# 1. In the following network, identify one path, one trail that is NOT a path, and one walk that is neither a path nor a trail:
+1e4 -> N
 set.seed(42)
-erdos.renyi.game(10, .3, directed = TRUE) -> ex_gr
-plot(ex_gr)
-
-# 2. For the example marriage and descent networks from the previous class, if you are in the Q clan, in which clan is your MDBS?
-D
-
-# _Clustering_ is important, as it attempts to walk a middle ground between group-level properties (too course-grained) and individual-level properties (too fine-grained). We "[assign] items into groups or classes based on similarities or distances between them" (BEJ $\S$ 6.4). And while we do this all the time -  schools put students in tracks, and we all categorize people and events - complexity reduction can be problematic:
-
-# * Arrogance of reducer
-# * Violence done to the reduced
-
-# Still, let's do some of this. First, you should know that there are several uses of the word "cluster", so a modifier is always appropriate. BEJ 6 talks of _hierarchical clustering_, and gives the process; their example of distances between US cities is instructive (in Figure 6.5 remember the "Level" reads down the column; across that row is just the number that lists the oder in which the cities were originally given). We don't care so much about the process pseudocode as we do about getting an answer, so, let's repeat that example in R:
-
-  # As BEJ
-  # Plot the MDS!
-  
-
-# Compare the two methods.
-
-# We can do this for most any data set.
-
-head(mtcars)
-dist(mtcars) -> mtcars_d
-hclust(mtcars_d, method="average") -> cars_hc
-plot(cars_hc)
-str(cars_hc)
-
-
-# OK, let's look carefully at the output of hclust.
-
-# What else can we cluster? Here's some to look at:
-#   [Cluster examples](https://cran.r-project.org/web/packages/dendextend/vignettes/Cluster_Analysis.html)
-
-# Supporting Teachers
-# Once upon a time, I was on a project that surveyed beginning and experienced teachers to see how they were different. 
-
-# The theory (at the time) said that there were 9 things that teachers worried about: students, parents, colleagues, supervisors, preparation, autonomy, appearance, grading and workload. We, however, found only 8 factors: workload, appearance, colleagues, parents, grading, preparation, autonomy, and a "classroom" factor.
-
-# What are factors? Well, they are "a small number of *linear combinations* of the variables so as to capture most of the variation...With a large number of variables it may be easier to consider a small number of combinations of the original data rather than the entire dataframe." (Crawley, Chapter 25.) This relies on the data being somewhat correlated.
-
-# So, a 72-question survey was developed, and administered. The results are in "Supporting Teacher Data.csv" in the usual place. First, let's do a factor analysis on those data to see what the factors are. (The column headings are the theoretical category followed by the actual question number. E.g., Q0544 would be the 44th question, which theoretically applied to category 5.)
-
-# The experience question, although coded as numbers, really mean this:
-# Pre-service teachers:
-# 1 - no methods courses & no observations
-# 2 - methods courses but no observations
-# 3 - observations but no student teaching
-# 4 - currently student teaching
-# 5 - other
-
-# Post:
-# 1 - 1 to 5 years
-# 2 - 6 to 10 years
-# 3 - 11 to 15 years
-# 4 - 16 to 20 years
-# 5 - 21 or more years
-
-
-fread("http://citadel.sjfc.edu/faculty/bricca/Data/Beginning Teacher Factors(Z).csv")->fac.df
-
-# Add rownumbers
-
-fac.df %>%
-  dplyr::filter(.,group=="pre-service") %>%
-  select(.,factor_classroom, factor_workload, factor_appearance, factor_colleagues,
-         factor_parents, factor_grading, factor_preparation, factor_autonomy) -> temp.df
-paste("T",1:nrow(temp.df),sep="")->labels
-hclust(dist(temp.df))->hteach # Do this clustering first
-plot(hteach,labels=labels, main= "")
-
-# From here, we see if we can identify what is important about the clusters, often by doing significance testing between the clusters.
-
-
-# How many clusters to use?
-# Some answers:
-# a) fvis() in the factoextra package
-# b) topology: Essentially, long lines on the dendograms
-# c) [Others that I'm not familiar enough with](http://www.rpubs.com/s_ritesh/Deciding_Clusters) to comment on except to say that they sometimes differ.
-# d) [Still others](https://www.statmethods.net/advstats/cluster.html)
-
-# What else can we cluster?
-  
-#   HW 1: See Blackboard
-
-# __Class 5: 28 January 2019__
-# More on [How many clusters?](https://towardsdatascience.com/10-tips-for-choosing-the-optimal-number-of-clusters-277e93d72d92)
-
-# ```{r clusters}
-c(
-  "magrittr",
-  "cluster",
-  "cluster.datasets",
-  "cowplot",
-  "NbClust",
-  "clValid",
-  "ggfortify",
-  "clustree",
-  "dendextend",
-  "factoextra",
-  "FactoMineR",
-  "corrplot",
-  "GGally",
-  "ggiraphExtra",
-) -> package_names  
-
-data("all.mammals.milk.1956")
-#raw_mammals <- all.mammals.milk.1956
-# subset dataset
-all.mammals.milk.1956 %>%    
-  select(., -name) %>%       # subset data
-  as_tibble(.) -> mammals    # Make it a tibble
-# mammals <- as_tibble(mammals)
-
-summary(mammals) %>% kable() %>% kable_styling()
-
-mammals %>% 
-  gather(Attributes, value, 1:5) %>% 
-  ggplot(aes(x=value)) +
-  geom_histogram(fill = "lightblue2", color = "black") + 
-  facet_wrap(~Attributes, scales = "free_x") +
-  labs(x = "Value", y = "Frequency")
-
-corrplot(cor(mammals), type = "upper", method = "ellipse", tl.cex = 0.9)
-
-mammals_scaled <- scale(mammals)
-rownames(mammals_scaled) <- all.mammals.milk.1956$name
-
-res.pca <- PCA(mammals_scaled,  graph = FALSE)
-# Visualize eigenvalues/variances
-fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
-
-# Extract the results for variables
-var <- get_pca_var(res.pca)
-# Contributions of variables to PC1
-fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
-# Contributions of variables to PC2
-fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
-# Control variable colors using their contributions to the principle axis
-fviz_pca_var(res.pca, col.var="contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping
-) + theme_minimal() + ggtitle("Variables - PCA")
-
-kmean_calc <- function(df, ...){
-  kmeans(df, scaled = ..., nstart = 30)
+replicate(N,resamp_means(degree_df$Degre,
+                           degree_df$Sex)) -> nulldist
+{
+  hist(nulldist, col="cyan", breaks = 30)
+  abline(v = obsdiff, col = "red")   # Looks non-significant
 }
-km2 <- kmean_calc(mammals_scaled, 2)
-km3 <- kmean_calc(mammals_scaled, 3)
-km4 <- kmeans(mammals_scaled, 4)
-km5 <- kmeans(mammals_scaled, 5)
-km6 <- kmeans(mammals_scaled, 6)
-km7 <- kmeans(mammals_scaled, 7)
-km8 <- kmeans(mammals_scaled, 8)
-km9 <- kmeans(mammals_scaled, 9)
-km10 <- kmeans(mammals_scaled, 10)
-km11 <- kmeans(mammals_scaled, 11)
-p1 <- fviz_cluster(km2, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 2") 
-p2 <- fviz_cluster(km3, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 3")
-p3 <- fviz_cluster(km4, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 4")
-p4 <- fviz_cluster(km5, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 5")
-p5 <- fviz_cluster(km6, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 6")
-p6 <- fviz_cluster(km7, data = mammals_scaled, frame.type = "convex") + theme_minimal() + ggtitle("k = 7")
-plot_grid(p1, p2, p3, p4, p5, p6, labels = c("k2", "k3", "k4", "k5", "k6", "k7"))
+# (hist() has seme strange behaviors in terms of those gaps.)
+
+length(which(nulldist > obsdiff)) / N
+
+# Figure 10.3
+# Nothing to see here...no data...just an example
+
+# Figure 10.4
+# Nothing to see here...no data...just an example
+
+# Figure 10.5
+# This really isn't used, but still...
+matrix(c("Z6", "Y2",
+         "Z5", "Y2",
+         "Z4", "Y2",
+         "Y2", "X",
+         "Y1", "X",
+         "Z1", "Y1",
+         "Z2", "Y1",
+         "Z3", "Y1"),
+       ncol = 2,
+       nrow = 8,
+       byrow = TRUE) -> F10.5_mat
+network(F10.5_mat,
+        directed = FALSE) -> F10.5_net
+set.seed(42)
+plot(F10.5_net,
+     displaylabels = TRUE)
+
+# Figure 10.6
+matrix(c(1,4,
+         4,5,
+         3,5,
+         2,5),
+       ncol = 2,
+       nrow = 4,
+       byrow = TRUE) -> F10.6_mat
+network(F10.6_mat,
+        directed = TRUE) -> F10.6_net
+set.seed(42)
+plot(F10.6_net,
+     vertex.cex = 2.5,
+     vertex.col = "gray",
+     displaylabels = TRUE,
+     arrowhead.cex = 2)
+
+# Table 10.1
+# Some versions of eigenvector centrality allow one to put in
+#  a value for _beta_ (really, 1/beta = lambda). However, BEJ's
+#  beta centrality is really similar to Bonacich Power Centrality,
+#  so we'll use that here.
+matrix(c(1,4,
+         4,5,
+         3,5,
+         2,5),
+       ncol = 2,
+       nrow = 4,
+       byrow = TRUE) -> F10.7_mat
+graph_from_edgelist(F10.7_mat) -> F10.7_gr
+# Because the scaling of power_centrality doesn't match
+#  the scaling of BEJ's beta centrality, I'll just do a few to
+#  show the similarities. Notice that the ratios of the scores
+#  between the nodes is pretty much the same for power_centrality()
+#  and for BEJ; just the absolute values are different.
+# First, for the "Out scores"
+1 -> beta
+power_centrality(F10.7_gr)
+
+1000 -> beta
+power_centrality(F10.7_gr,
+                 exponent = beta)
+
+# Now, let's do the "In scores"
+matrix(c(F10.7_mat[,2], F10.7_mat[,1]),
+       ncol = 2,
+       nrow = 4,
+       byrow = FALSE) -> F10.7_in_mat
+graph_from_edgelist(F10.7_in_mat) -> F10.7_in_gr
+
+1 -> beta
+power_centrality(F10.7_in_gr)
+
+1000 -> beta
+power_centrality(F10.7_in_gr,
+                 exponent = beta)
+
+# Figure 10.7
+# Data not given
+
+## Chapter 11 - still to do ####
 
 
-
-gap_stat <- clusGap(mammals_scaled, FUN = kmeans, nstart = 30, K.max = 24, B = 50)
-fviz_gap_stat(gap_stat) + theme_minimal() + ggtitle("fviz_gap_stat: Gap Statistic")
+## Chapter 12 - still to do ####
 
 
-
-# __Class 6: 30 January 2019__
-# Network stuff:
-  
-data(florentine)
-plot(flobusiness)
-plot(flomarriage)
-
-array(dim=c(2,16,16)) -> florence
-as.matrix.network(flobusiness,
-                  matrix.type = "adjacency") -> florence[1,,]
-as.matrix.network(flomarriage,
-                  matrix.type = "adjacency") -> florence[2,,]
-gcor(florence, g1=1, g2=2)
+## Chapter 13 - still to do ####
 
 
-netlm(flobusiness, flomarriage) -> nl
-summary(nl)
-
-netlm(flobusiness, flomarriage, intercept = FALSE) -> nl1
-summary(nl1)
+## Chapter 14 - still to do ####
 
 
-
-
-
-#Generate three graphs
-set.seed(20190130)
-g<-array(dim=c(3,10,10))
-g[1,,]<-rgraph(10)
-g[2,,]<-rgraph(10,tprob=g[1,,]*0.8)
-g[3,,]<-1; g[3,1,2]<-0              #This is nearly a clique
-
-as.network(g[1,,]) -> n1
-as.network(g[2,,]) -> n2
-as.network(g[3,,]) -> n3
-
-plot(n1)
-plot(n2)
-plot(n3)
-
-
-
-#Perform qap tests of graph correlation
-q.12<-qaptest(g,gcor,g1=1,g2=2, reps=1e3)
-q.13<-qaptest(g,gcor,g1=1,g2=3)
-
-#Examine the results
-summary(q.12)
-plot(q.12)
-summary(q.13)
-plot(q.13)
-
-
-
-# qap tests of linear models
-netlm(flobusiness, flomarriage, nullhyp = "qap")
-
-
-
-
-# Hypothesis Testing (Chapter 8); more ERGM?
-#   Permutation hypotheses
-# More stuff (dyadic hypotheses, node-level hypotheses, whole-network hypotheses)
-
-
-# Hypothesis Testing On Networks (BEJ 8)
-# __Class 7: 4 February 2019__
-# ERGM
-# BEJ 8: What's important about ERGM? $\S$8.7, first paragraph.
-
-# Let's look at some examples
-
-# [ERGM Tutorial](https://michaellevy.name/blog/ERGM-tutorial/)
-
-# [ERGM Vignettes](https://cran.r-project.org/web/packages/ergm/vignettes/ergm.pdf)
-
-# [Another tutorial](https://www.win.tue.nl/~rmcastro/tmp/YES_VI/files/ERGM.pdf) - pp 23-27 for what is new/helpful here
-
-
-
-
-
-
-
-
-# Data Collection & Management (Chapters 4 & 5); contagion? API and scraping (e.g., scrape the Fisher Athletics rosters for name, sport, and major(s))
-
-
-
-
-# For matrix 5.7:
-  # For the first, we need to know how many authors, and how
-  #  many links are in each department.
-  rowSums(scientists960_mat) - 
-  diag(scientists960_mat) -> num_co_authors
-
-data.frame("Author" = attributes960_df$V1,
-           "Links" = num_co_authors,
-           "Department" = attributes960_df$DeptID) -> authors_df
-
-table(authors_df$Department) -> dept_numbers
-authors_df %>%
-  group_by(., Department) %>%
-  summarise(.,
-            "Papers per Department" = sum(Links)) -> dept_authors
-c(1, 2, 3, 4, 5, 6, 7, 10, 20, 30) -> dept_ID
-list() -> dept_members
-for(i in 1:length(dept_ID)) {
-  which(authors_df$Department == dept_ID[i]) -> dept_members[[i]]
-}
-
-dept_numbers
-dept_authors
-dept_members
-
-rep(0,10) -> sum1
-for(i in 1:10) {
-  sum(scientists960_mat[1,dept_members[[i]]]) -> sum1[i]
-}
-
-
-# Because there are 10 departments, the latter for each author
-#  is just the following:
-
-# The number of times a department is a co-author is this:
-(colSums(scientists960_mat) - 
-    diag(scientists960_mat)) / 10 -> co_authored_per_dept
-
-
-
-
-authors_df %>%
-  group_by(., Department) %>%
-  summarise(.,
-            "Total Co-authors" = sum(LinksOut),
-            "Total Co-authored" = sum(LinksIn)) -> links
+## Chapter 15 - still to do ####
