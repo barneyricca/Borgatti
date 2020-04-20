@@ -47,7 +47,7 @@
     "igraph",        # Basic network tools; we'll use statnet mostly
     "igraphdata",    # Some useful datasets
     "intergraph",    # Translate between igraph and statnet formats
-    "lmperm",        # To do permutation tests
+    "lmPerm",        # To do permutation tests
 #  "qgraph",         #
     "statnet",      # A suite of network tools, including ERGM and more
 #  "tidyverse",      # Data manipulation
