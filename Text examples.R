@@ -1805,7 +1805,8 @@ power_centrality(F10.7_in_gr,
 # Figure 10.7
 # Data not given
 
-## Chapter 11 - still to do: Matrix 11.3 & Figure 11.3 ####
+## Chapter 11 - still to do ####
+
 # Figure 11.1
 matrix(c(1,2,
          1,3,
@@ -1842,21 +1843,15 @@ games_mat
 graph_from_adjacency_matrix(games_mat,
                             mode = "directed") -> games_gr
 
-# Notice that this is easier (for me, at least!) with package:igraph
-#  than with package:network
-network(games_mat, directed = TRUE) -> games_net
-clique.census(games_net) -> cc
-cc$cliques[3:5]    # Don't care about the cliques of size 1 or 2
-
+# Can do this with sna::clique.census() too.
 max_cliques(games_gr,       # Ignore the warning
-            min = 3) -> mc  # BEJ ignore all less than 3
+            min = 3) -> mc  # BEJ ignore all less than size 3
 matrix(0,
        nrow = nrow(games_mat),
        ncol = ncol(games_mat),
        dimnames = list(rownames(games_mat),
                        colnames(games_mat))) -> overlaps
-# The next is slightly different from BEJ because it includes
-#  all the cliques of size 1 and 2, which BEJ don't.
+
 for(index in 1:(length(mc))) {
   for(r in 1:(length(mc[[index]]))) {
     for(c in 1:(length(mc[[index]]))) {
@@ -1912,6 +1907,69 @@ for(index in 1:(length(karate_mc))) {
 as.dist(max(overlaps) - overlaps) -> dist_mat
 hclust(dist_mat) -> c_map
 plot(c_map)
+
+# Figure 11.5
+
+# Figure 11.6
+
+# Figure 11.7
+# Nothing to see here...just a picture for the paragraph
+
+# Matrix 11.4
+# Everything but the lines in the printout:
+matrix(0,
+       nrow = 12,
+       ncol = 12) -> M11.4
+1 -> M11.4[1:3, 1:3]
+1 -> M11.4[4:8, 4:8]
+1 -> M11.4[9:12, 9:12]
+0 -> diag(M11.4)
+M11.4
+
+# Figure 11.8
+# Girvan-Newman is edge_betweenness in igraph:
+data(karate)
+cluster_edge_betweenness(karate) -> eb_community # Ignore warning
+
+#This produced 6 communities! BEJ only want only 2. Looking at
+#  the membership list, I think taht putting 1, 2, 3, and 4 into
+#  one community and 5 and 6 in the other will work out just fine.
+membership(eb_community) -> comm_memb
+1 -> comm_memb[which(comm_memb == 2)]
+1 -> comm_memb[which(comm_memb == 3)]
+1 -> comm_memb[which(comm_memb == 4)]
+2 -> comm_memb[which(comm_memb == 5)]
+2 -> comm_memb[which(comm_memb == 6)]
+
+
+# Figure 11.9 addendum
+# Look what is in the igraph documentation. Notice that it has
+#  the same degree structure as the UCINET data, but with
+#  different names attached. I don't know which is actually
+#  correct, but let's not be distracted by that right now; check
+#  out the method.
+
+## The science camp network
+camp <- graph_from_literal(Harry:Steve:Don:Bert - Harry:Steve:Don:Bert,
+                           Pam:Brazey:Carol:Pat - Pam:Brazey:Carol:Pat,
+                           Holly   - Carol:Pat:Pam:Jennie:Bill,
+                           Bill    - Pauline:Michael:Lee:Holly,
+                           Pauline - Bill:Jennie:Ann,
+                           Jennie  - Holly:Michael:Lee:Ann:Pauline,
+                           Michael - Bill:Jennie:Ann:Lee:John,
+                           Ann     - Michael:Jennie:Pauline,
+                           Lee     - Michael:Bill:Jennie,
+                           Gery    - Pat:Steve:Russ:John,
+                           Russ    - Steve:Bert:Gery:John,
+                           John    - Gery:Russ:Michael)
+campBlocks <- cohesive_blocks(camp)
+campBlocks
+
+plot(campBlocks, camp, vertex.label=V(camp)$name, margin=-0.2,
+     vertex.shape="rectangle", vertex.size=24, vertex.size2=8,
+     mark.border=1, colbar=c(NA, NA,"cyan","orange") )
+
+# Figure 11.10
 
 ## Chapter 12 - still to do ####
 
