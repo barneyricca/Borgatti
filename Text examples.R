@@ -1875,8 +1875,70 @@ hclust(dist_mat) -> c_map
 #  the height (levels) of joining are a bit different.
 plot(c_map)
 
-# Matrix 11.3 & Figure 11.3
-# Not yet
+# Matrix 11.3
+fread(here("Data/WIRING_RDGAM.csv"),
+      header = TRUE) -> games_mat
+as.matrix(games_mat[,-1]) -> games_mat
+colnames(games_mat) -> rownames(games_mat)
+colnames(games_mat) -> nam
+
+graph_from_adjacency_matrix(games_mat,
+                            mode = "directed") -> games_gr
+
+# Can do this with sna::clique.census() too.
+max_cliques(games_gr,       # Ignore the warning
+            min = 3) -> mc  # BEJ ignore all less than size 3
+
+# Make the matrix
+matrix(0,
+       ncol = length(mc),
+       nrow = gorder(games_gr),
+       dimnames = list(rownames(games_mat), 1:5)) -> bimodal_mat
+
+# Fill the matrix
+for(clique in 1:(length(mc))) {
+  for(vert in 1:(length(mc[[clique]]))) {
+    1 -> bimodal_mat[mc[[clique]][vert], clique]
+  }
+}
+
+# Now, to fill in the rest, column by column
+for(clique in 1:length(mc)) {        # For each clique
+  # get the neighbors of the first vertex in the clique:
+  neighbors(games_gr, mc[[clique]][1]) -> neigh_vert
+  # get the neighbors of each other vertex in the clique, and
+  #  add them to the vector:
+  for(vert in 2:length(mc[[clique]])) {      
+    c(neigh_vert,
+      neighbors(games_gr, mc[[clique]][vert])) -> neigh_vert
+  }
+  # Get the vertices that aren't in the clique
+  sort(difference(neigh_vert, mc[[clique]])) -> adds
+  # BEJ: "and values in between give the number of ties
+  #  which connect the actor to the clique divided by the
+  #  number of ties required for the actor to be a clique
+  #  member." Notice, however, that BEJ don't actually
+  #  follow their rule in the creation of Matrix 11.3. I will
+  #  create Matrix 11.3, but the denominator in the next
+  #  line is 1 less than is should be.
+  unname(table(adds)) / length(mc[[clique]]) -> vals
+  # Put the appropriate values in the appropirate positions
+  vals -> bimodal_mat[sort(unique(adds)), clique]
+}
+
+# Figure 11.3
+# bimodal_mat is an affiliation matrix. We can create the network
+#  from that. See the code for Matrix 11.3 for the creation of
+#  bimodal_mat.
+graph_from_incidence_matrix(bimodal_mat) -> bimodal_gr
+set.seed(42)
+plot(bimodal_gr,
+     vertex.shape = ifelse(V(bimodal_gr)$type == TRUE,
+                           "square", "circle"),
+     vertex.rot = 45,
+     vertex.col = c(rep("gray", 19), rep("cyan", 5)),
+     vertex.label.dist = 1.5,
+     vertex.label.color = "black")
 
 # Figure 11.4
 data(karate)
