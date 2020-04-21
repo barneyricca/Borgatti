@@ -1805,8 +1805,113 @@ power_centrality(F10.7_in_gr,
 # Figure 10.7
 # Data not given
 
-## Chapter 11 - still to do ####
+## Chapter 11 - still to do: Matrix 11.3 & Figure 11.3 ####
+# Figure 11.1
+matrix(c(1,2,
+         1,3,
+         1,4,
+         2,3,
+         2,4,
+         3,4,
+         3,5,
+         4,5,
+         5,6,
+         6,7,
+         7,8,
+         7,9,
+         7,10,
+         8,10,
+         9,10),
+       ncol = 2,
+       nrow = 15,
+       byrow = TRUE) -> F11.1_edges
+network(F11.1_edges, directed = FALSE) -> F11.1_gr
+set.seed(42)
+plot(F11.1_gr, displaylabels = TRUE)
 
+# Matrix 11.1
+fread(here("Data/WIRING_RDGAM.csv"),
+      header = TRUE) -> games_mat
+as.matrix(games_mat[,-1]) -> games_mat
+colnames(games_mat) -> rownames(games_mat)
+games_mat
+
+# Matrix 11.2
+# FWIW, here are the 5 cliques that get listed by BEJ (by node index,
+#  not node name):
+graph_from_adjacency_matrix(games_mat,
+                            mode = "directed") -> games_gr
+
+# Notice that this is easier (for me, at least!) with package:igraph
+#  than with package:network
+network(games_mat, directed = TRUE) -> games_net
+clique.census(games_net) -> cc
+cc$cliques[3:5]    # Don't care about the cliques of size 1 or 2
+
+max_cliques(games_gr,       # Ignore the warning
+            min = 3) -> mc  # BEJ ignore all less than 3
+matrix(0,
+       nrow = nrow(games_mat),
+       ncol = ncol(games_mat),
+       dimnames = list(rownames(games_mat),
+                       colnames(games_mat))) -> overlaps
+# The next is slightly different from BEJ because it includes
+#  all the cliques of size 1 and 2, which BEJ don't.
+for(index in 1:(length(mc))) {
+  for(r in 1:(length(mc[[index]]))) {
+    for(c in 1:(length(mc[[index]]))) {
+      overlaps[mc[[index]][r],mc[[index]][c]] + 1 -> 
+        overlaps[mc[[index]][r],mc[[index]][c]]
+    }
+  }
+}
+
+overlaps
+
+# Figure 11.2
+# Start with overlaps
+
+# overlaps is the inverse (or opposite) of the distance, so let's
+#  do this:
+as.dist(max(overlaps) - overlaps) -> dist_mat
+hclust(dist_mat) -> c_map
+# Notice that this puts S4 and S2 in, which BEJ's approach 
+#  never does. Otherwise, pretty much the same thing, although 
+#  the height (levels) of joining are a bit different.
+plot(c_map)
+
+# Matrix 11.3 & Figure 11.3
+# Not yet
+
+# Figure 11.4
+data(karate)
+max_cliques(karate,
+            min = 3) -> karate_mc
+
+matrix(0,
+       nrow = gorder(karate),
+       ncol = gorder(karate),
+       dimnames = list(V(karate)$name,
+                       V(karate)$name)) -> overlaps
+
+for(index in 1:(length(karate_mc))) {
+  for(r in 1:(length(karate_mc[[index]]))) {
+    for(c in 1:(length(karate_mc[[index]]))) {
+      overlaps[karate_mc[[index]][r],
+               karate_mc[[index]][c]] + 1 -> 
+        overlaps[karate_mc[[index]][r],
+                 karate_mc[[index]][c]]
+    }
+  }
+}
+
+# This produces a similar graph to BEJ; that has to do
+#  with the next command. (I suspect that if I did something
+#  like using rowSums or something else to adjust things,
+#  the results would be more like BEJ.)
+as.dist(max(overlaps) - overlaps) -> dist_mat
+hclust(dist_mat) -> c_map
+plot(c_map)
 
 ## Chapter 12 - still to do ####
 
