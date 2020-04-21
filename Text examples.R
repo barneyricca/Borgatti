@@ -18,11 +18,14 @@
 
 #
 # There are several other potentially useful packages, including:
-#   keyplayer - advanced centality methods
+#   CINNA - 
 #   gplot -
-#   graphlayouts
+#   ggnetwork - ggplot-like plotting for networks
+#   graphlayouts - Some useful plotting stuff for igraph
+#   keyplayer - advanced centality methods
 #   multiplex - for multplex graphs
 #   ndtv - Network Dynamic Temporal Visualization
+#   qgraph
 #   RSiena - particularly useful for longitudinal networks; see Snijders' 
 #            Siena home page
 #   sand - from a more mathematical text
@@ -41,16 +44,12 @@
     "data.table",    # Fast data input/output
     "dplyr",         # This is all of tidyverse that gets used here
     "dtplyr",        # dplyr syntax with a data.table backend
-#  "ggnetwork",      # ggplot-like plotting for networks
-#  "graphlayouts",   # For plotting stuff
     "here",          # To find/store files w/o setwd() and getwd()
     "igraph",        # Basic network tools; we'll use statnet mostly
     "igraphdata",    # Some useful datasets
     "intergraph",    # Translate between igraph and statnet formats
     "lmPerm",        # To do permutation tests
-#  "qgraph",         #
     "statnet",      # A suite of network tools, including ERGM and more
-#  "tidyverse",      # Data manipulation
     "xlsx"
   ) -> package_names
   
@@ -209,7 +208,7 @@ network::add.edges(F2.1,
           head = c(2, 3, 4, 5, 1))
 #          head = c("B", "C", "D", "A", "E"))
 
-### A Note about plotting ####
+# A Note about plotting:
 # Generic network plotting has a random aspect to it, so setting the seed
 #  helps to make it reproducible. There are a number of ways to layout the
 #  nodes on a network, and we'll look at some of those, but network plotting
@@ -1875,8 +1874,70 @@ hclust(dist_mat) -> c_map
 #  the height (levels) of joining are a bit different.
 plot(c_map)
 
-# Matrix 11.3 & Figure 11.3
-# Not yet
+# Matrix 11.3
+fread(here("Data/WIRING_RDGAM.csv"),
+      header = TRUE) -> games_mat
+as.matrix(games_mat[,-1]) -> games_mat
+colnames(games_mat) -> rownames(games_mat)
+colnames(games_mat) -> nam
+
+graph_from_adjacency_matrix(games_mat,
+                            mode = "directed") -> games_gr
+
+# Can do this with sna::clique.census() too.
+max_cliques(games_gr,       # Ignore the warning
+            min = 3) -> mc  # BEJ ignore all less than size 3
+
+# Make the matrix
+matrix(0,
+       ncol = length(mc),
+       nrow = gorder(games_gr),
+       dimnames = list(rownames(games_mat), 1:5)) -> bimodal_mat
+
+# Fill the matrix
+for(clique in 1:(length(mc))) {
+  for(vert in 1:(length(mc[[clique]]))) {
+    1 -> bimodal_mat[mc[[clique]][vert], clique]
+  }
+}
+
+# Now, to fill in the rest, column by column
+for(clique in 1:length(mc)) {        # For each clique
+  # get the neighbors of the first vertex in the clique:
+  neighbors(games_gr, mc[[clique]][1]) -> neigh_vert
+  # get the neighbors of each other vertex in the clique, and
+  #  add them to the vector:
+  for(vert in 2:length(mc[[clique]])) {      
+    c(neigh_vert,
+      neighbors(games_gr, mc[[clique]][vert])) -> neigh_vert
+  }
+  # Get the vertices that aren't in the clique
+  sort(difference(neigh_vert, mc[[clique]])) -> adds
+  # BEJ: "and values in between give the number of ties
+  #  which connect the actor to the clique divided by the
+  #  number of ties required for the actor to be a clique
+  #  member." Notice, however, that BEJ don't actually
+  #  follow their rule in the creation of Matrix 11.3. I will
+  #  create Matrix 11.3, but the denominator in the next
+  #  line is 1 less than is should be.
+  unname(table(adds)) / length(mc[[clique]]) -> vals
+  # Put the appropriate values in the appropirate positions
+  vals -> bimodal_mat[sort(unique(adds)), clique]
+}
+
+# Figure 11.3
+# bimodal_mat is an affiliation matrix. We can create the network
+#  from that. See the code for Matrix 11.3 for the creation of
+#  bimodal_mat.
+graph_from_incidence_matrix(bimodal_mat) -> bimodal_gr
+set.seed(42)
+plot(bimodal_gr,
+     vertex.shape = ifelse(V(bimodal_gr)$type == TRUE,
+                           "square", "circle"),
+     vertex.rot = 45,
+     vertex.col = c(rep("gray", 19), rep("cyan", 5)),
+     vertex.label.dist = 1.5,
+     vertex.label.color = "black")
 
 # Figure 11.4
 data(karate)
@@ -1931,8 +1992,8 @@ M11.4
 data(karate)
 cluster_edge_betweenness(karate) -> eb_community # Ignore warning
 
-#This produced 6 communities! BEJ only want only 2. Looking at
-#  the membership list, I think taht putting 1, 2, 3, and 4 into
+# This produced 6 communities! BEJ only want only 2. Looking at
+#  the membership list, I think that putting 1, 2, 3, and 4 into
 #  one community and 5 and 6 in the other will work out just fine.
 membership(eb_community) -> comm_memb
 1 -> comm_memb[which(comm_memb == 2)]
@@ -1969,15 +2030,238 @@ plot(campBlocks, camp, vertex.label=V(camp)$name, margin=-0.2,
      vertex.shape="rectangle", vertex.size=24, vertex.size2=8,
      mark.border=1, colbar=c(NA, NA,"cyan","orange") )
 
+# Matrix 11.5
+
 # Figure 11.10
+
+# Matrix 11.6
+
+# Figure 11.11
+
+# Matrix 11.7
+
+# Figure 11.12
+
 
 ## Chapter 12 - still to do ####
 
+# Figure 12.1
+# Let's just do Relation 2
+c(1, 1, 1 + sqrt(3)/2, 1 + sqrt(3)/2, 1 - sqrt(3)/2) -> x
+c(0, 1, 1, 0, 0.5) -> y
+{
+  plot(x, y)
+  text(x + c(0.05, 0.05, 0, 0, 0.1),
+       y + c(0.1, -0.1, -0.1, 0.1, 0),
+       labels = c(1, 2, 3, 4, 5))
+  arrows(x0 = c(x[1], x[1], x[1], x[2], x[2], x[2], x[5], x[5]),
+         y0 = c(y[1], y[1], y[1], y[2], y[2], y[2], y[5], y[5]),
+         x1 = c(x[2], x[3], x[4], x[1], x[3], x[4], x[1], x[2]),
+         y1 = c(y[2], y[3], y[4], y[1], y[3], y[4], y[1], y[2]),
+         length = 0.1,
+         angle = 15,
+         ann = FALSE)
+}
+
+# Matrix 12.1
+matrix(c(0, 1, 0, 1, 1,
+         1, 0, 1, 1, 0,
+         1, 0, 0, 1, 1,
+         1, 0, 1, 0, 0,
+         0, 1, 0, 0, 1),
+       ncol = 5,
+       nrow = 5,
+       byrow = TRUE) -> F12.2_mat
+as.character(1:5) -> rownames(F12.2_mat) -> colnames(F12.2_mat)
+F12.2_mat
+
+# Matrix 12.2
+as.matrix(fread("http://moreno.ss.uci.edu/sampson.dat",
+                skip = 126,
+                nrows = 18,
+                header = FALSE)) -> esteem_mat
+as.matrix(fread("http://moreno.ss.uci.edu/sampson.dat",
+                skip = 144,
+                nrows = 18,
+                header = FALSE)) -> disesteem_mat
+c("ROMULALD", "BONAVENTURE", "AMBROSE", "BERTHOLD", "PETER", 
+  "LOUIS", "VICTOR", "WINFRID", "JOHN", "GREG", 
+  "HUGH",  "BONIFACE", "MARK", "ALBERT", "AMAND",
+  "BASIL", "ELIAS", "SIMPLICIUS") -> row_names
+c("RO", "BO", "AM", "BE", "PE", 
+  "LO", "VI", "WI", "JO", "GR", "HU", 
+  "BO", "MA", "AL", "AM", "BA", "EL", 
+  "SI") -> col_names
+row_names -> rownames(esteem_mat) -> rownames(disesteem_mat)
+col_names -> colnames(esteem_mat) -> colnames(disesteem_mat)
+
+# (a)
+esteem_mat
+
+# (b)
+disesteem_mat
+
+# Matrix 12.3
+# Append the matrices from Matrix 12.2
+array(0, dim = list(2, 18, 18)) -> sampson_arr
+esteem_mat -> sampson_arr[1,,]
+disesteem_mat -> sampson_arr[2,,]
+
+# Sadly, the next computes Matrix 12.3 on the fly, but never
+#  makes it available externally. However, we can get the
+#  same type of analysis as Matrix 12.3 by looking at the 
+#  dendogram in Figure 12.2.
+equiv.clust(sampson_arr) -> equiv_res
+
+# Howver, we can calculate the desired distances:
+sedist(sampson_arr,
+       method = "euclidean",
+       joint.analysis = TRUE) -> distances
+row_names -> rownames(distances)
+col_names -> colnames(distances)
+# Notice that the next gives nubmers that are much like
+#  those in BEJ in their variation. (They are mostly smaller,
+#  but I'm only concerned about ranking, not absolute value.)
+round(distances, 1)
+
+# Figure 12.2
+plot(equiv_res)
+# Looking at the diagram at a heigh of about 25:
+# Cluster 1: 8, 14, 15, 18 (Winfrid, Albert, Amand, Simplicius)
+# Cluster 2: 11, 12, 13 (High, Boniface, Mark)
+# Cluster 3: 1, 2, 3, 6 (Romuald, Bonaventure, Ambrose, Louis)
+# Cluster 4: 16, 17 (Basil, Elias)
+# Notice that Cluster 2 is all "Young Turks", Cluster 4 is all 
+#  "Outcasts", Cluster 3 is mostly "Loyal Opposition", and
+#  Cluster 1 is a bit mixed. As BEJ note, this only used
+#  a small portion of Sampson's data, but still did okay.
+
+# Matrix 12.4
+# Nothing to see here...
+
+# Figure 12.3
+# Not doing this one. Just note how the four "blocks" of
+#  Matrix 12.4 become the matrix shown in Figure 12.3, and that
+#  the network created from that "block matrix" comes about.
+#  (The vertex on the left is block 1, while the vertex on the
+#  right is block 2.)
+
+# Figure 12.4
+equiv.clust(esteem_mat) -> esteem_equiv
+equiv.clust(disesteem_mat) -> disesteem_equiv
+
+blockmodel(dat = esteem_mat, 
+           ec = esteem_equiv,
+           k = 4) -> esteem_bm   # k = 4 because BEJ did
+# You can get the groups here; the matrix isn't printed out, though.
+esteem_bm
+
+blockmodel(dat = disesteem_mat, 
+           ec = disesteem_equiv,
+           k = 4) -> disesteem_bm   # k = 4 because BEJ did
+disesteem_bm
+
+# Can also do:
+blockmodel(dat = sampson_arr,
+           ec = equiv_res,
+           k = 4) -> sampson_bm
+sampson_bm
+# None of these are exactly BEJ, but notice that there are many
+#  approaches to creating the equivalnece, and I don't know which
+#  one UCINET uses. Still, the concept is the same.
+
+# Matrix 12.5
+# The "number of changes" is also known as the "Hamming distance"
+#  Hmm...by default, equiv.cluster() and sedist9) use the Hamming
+#  distance.
+blockmodel(dat = esteem_mat, 
+           ec = esteem_equiv,
+           k = 3) -> esteem_bm   # k = 3 because BEJ did
+# You can get the groups here; the matrix isn't printed out, though.
+esteem_bm
+# Still not identical. See the comments for Matrix 12.4
+
+# Table 12.1
+# I don't think I have the data to do these, but it would use
+#  those data if I did have them.
+
+# Matrix 12.6
+# No data, and it isn't that interesting to create the data.
+
+# Matrix 12.7
+fread(here("Data/TARO.csv"), header = TRUE) -> taro_mat
+as.matrix(taro_mat[,-1]) -> taro_mat
+colnames(taro_mat) -> rownames(taro_mat)
+equiv.clust(taro_mat) -> taro_clust
+blockmodel(taro_mat, taro_clust, k = 3) -> taro_bm
+taro_bm
+# Again, not identical, but that probably has to do with the 
+#  clustering methods.
+
+# Figure 12.5
+
+# Figure 12.6
+# I know what BEJ are trying to get at here, but this would be
+#  a lot of work for a not-very-clear example.
+
+# Matrix 12.8
+fread(here("Data/Baker.csv"),
+      header= TRUE) -> baker_mat
+as.matrix(baker_mat[,-1]) -> baker_mat
+colnames(baker_mat) -> rownames(baker_mat)
+baker_mat
+
+# Table 12.3
+#Compute the k-cores based on total degree; the "discrete method"
+kc<-kcores(baker_mat)
+kc
+# Sorry folks, I know nothing about "continuous core-periphery"
+#  scores, so I can't do this. (I must say, however, that even
+#  BEJ state that "[i]t follows that the continuous method, which
+#  must take account of the off-diagonal blocks, cannot 
+#  differentiate between core–periphery and periphery–core 
+#  interaction. This means that it is better suited to symmetric
+#  data (or at least data that are very nearly symmetric." So, 
+#  probably not a big loss.)
+
+# Figure 12.7
+# Plot the result. gplot() plots a matrix as if it
+#  were a graph.
+gplot(baker_mat,
+      vertex.col=kc)
 
 ## Chapter 13 - still to do ####
 
+# Matrix 13.1
+# Same as Matrix 2.3
+load("Data/DeepSouth.RData")
+as.matrix(davisDyn) -> davisDyn
+
+davisDyn %*%  t(davisDyn) -> davis_women
+graph_from_adjacency_matrix(davis_women,
+                            mode = "undirected",
+                            weighted = TRUE,
+                            add.colnames = NULL,
+                            diag = FALSE) -> davis_women_gr
+set.seed(42)
+# This would plot the graph:
+plot(davis_women_gr,
+     shape = "square",
+     edge.width = E(davis_women_gr)$weight)
+# However, BEJ seem to have filtered out weights <= 2. Hence, we
+#  induce the subgraph, and then plot:
+subgraph.edges(davis_women_gr,
+               eids = which(E(davis_women_gr)$weight > 2)) -> davis_2_gr
+set.seed(42)
+plot(davis_2_gr,
+     shape = "square",
+     edge.width = E(davis_2_gr)$weight)
+
+
 
 ## Chapter 14 - still to do ####
+# 5 Figs, 1 Mat, 2 Tables
 
 
 ## Chapter 15 - still to do ####
+# 12 Figs, 2 Matx, 8 Tables
