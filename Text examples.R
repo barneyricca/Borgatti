@@ -2237,7 +2237,10 @@ gplot(baker_mat,
 load("Data/DeepSouth.RData")
 as.matrix(davisDyn) -> davisDyn
 
+# Matrix 13.2
 davisDyn %*%  t(davisDyn) -> davis_women
+
+# Figure 13.1
 graph_from_adjacency_matrix(davis_women,
                             mode = "undirected",
                             weighted = TRUE,
@@ -2254,10 +2257,61 @@ subgraph.edges(davis_women_gr,
                eids = which(E(davis_women_gr)$weight > 2)) -> davis_2_gr
 set.seed(42)
 plot(davis_2_gr,
-     shape = "square",
+     vertex.shape = "square",
      edge.width = E(davis_2_gr)$weight)
 
+# Matrix 13.3
+t(davisDyn) %*% davisDyn -> davis_event
+davis_event
+graph_from_adjacency_matrix(davis_event,
+                            mode = "undirected",
+                            weighted = TRUE,
+                            add.colnames = NULL) -> davis_event_gr
 
+# Matrix 13.4
+# Looking at the UCINET help (online) for "Data Affiliations" gives this:
+# "Converts an m´n matrix to an m´m or n´n by forming AA'  or A'A using two 
+#  different types of binary multiplication...."
+# That's just what we did. However, they also say:
+# 
+# "The routine also allows for the final matrix to be normalized to accommodate
+#  the different sizes of the events. Consider two actors i and j and let X be
+#  the product of the number events they both attended and the number of events
+#  they both did not attend, let Y be the product of the number events i 
+#  attended and j did not with the number of events j attended and i did not. 
+#  If X=Y the normalized entry is 0.5 otherwise it is (X-SQRT(XY))/(X-Y)."
+#
+# The last part is how to normalize this stuff. For the original matrix
+#  Events both attended: sum(row(i) * row(j)) = both
+#  Events both did not attend: number of columns - both
+#  i attended without j = sum(row(i)) - both
+#  j attended without i = sum(row(j)) - both
+# After doing all this, then normalize to 100.
+
+# Figure 13.2
+# From Matrix 13.4
+
+# Matrix 13.5
+matrix(0, ncol = ncol(davisDyn), nrow = ncol(davisDyn)) -> lower_right
+matrix(0, ncol = nrow(davisDyn), nrow = nrow(davisDyn)) -> upper_left
+cbind(upper_left, davisDyn) -> upper
+cbind(t(davisDyn), lower_right) -> lower
+rbind(upper, lower) -> davis_bipart
+davis_bipart
+
+# Figure 13.3
+graph_from_incidence_matrix(davisDyn,
+                            add.names = NULL) -> davis_bipart_gr
+set.seed(42)
+plot(davis_bipart_gr,
+     vertex.shape = ifelse(V(davis_bipart_gr)$type == TRUE,
+                           "circle",
+                           "square"))
+# Figure 13.4
+# I can't find enough detail to create a bi-clique anlaysis, so I can't
+#  do the clustering.
+
+#
 
 ## Chapter 14 - still to do ####
 # 5 Figs, 1 Mat, 2 Tables
