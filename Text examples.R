@@ -74,6 +74,8 @@
   rm(list = c("package_name", "package_names"))
 }
 
+set_here()
+
 # Because I like these options:
 options(show.signif.stars = FALSE)
 options(digits = 4)
@@ -288,15 +290,15 @@ plot.network(friends_net,
 
 # Figure 2.3
 # Read these from the UCI data:
-read.ucinet.header("Data/campnet") -> camp_hdr
-read.ucinet("Data/campnet") -> camp_mat
+read.ucinet.header(here("Data/campnet")) -> camp_hdr
+read.ucinet(here("Data/campnet")) -> camp_mat
 camp_hdr$dim.labels[[1]] -> rownames(camp_mat) -> colnames(camp_mat)
 network(camp_mat,
         directed = TRUE) -> camp_net
 
 # Get and set the vertex attributes
-read.ucinet.header("Data/campsex") -> camp_sex_hdr
-read.ucinet("Data/campsex") -> camp_sex_mat
+read.ucinet.header(here("Data/campsex")) -> camp_sex_hdr
+read.ucinet(here("Data/campsex")) -> camp_sex_mat
 # These got imported as a matrix:
 network::set.vertex.attribute(camp_net, "Sex", value = camp_sex_mat[,1]) 
 # These got imported as a matrix:
@@ -349,7 +351,7 @@ V(camp_gr)$vertex.names -> rownames(camp_dist) -> colnames(camp_dist)
 camp_dist
 
 # Matrix 2.3
-load("Data/DeepSouth.RData")
+load(here("Data/DeepSouth.RData"))
 as.matrix(davisDyn)
 
 ## Chapter 3 ####
