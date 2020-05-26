@@ -11,4 +11,4 @@ Notes:
 
 2020-05-24: Added the "Scientific Collaborations" to the Data directory.
 
-2020-05-26: Add the attributes for the "Scientific Collaboraitons" to the Data directory.
+2020-05-26: Added more data for the Borgatti homework problems.
