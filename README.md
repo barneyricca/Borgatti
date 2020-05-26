@@ -8,4 +8,7 @@ The necessary data can be downloaded from either the Data folder or Data.zip. Al
 When you find a (better) way to do any of these things, pull requests are welcomed!
 
 Notes:
+
 2020-05-24: Added the "Scientific Collaborations" to the Data directory.
+
+2020-05-26: Add the attributes for the "Scientific Collaboraitons" to the Data directory.
