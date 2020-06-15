@@ -743,8 +743,8 @@ y <- fit$points[, 2]   # This should be reversed, but isn't in
 
 # Table 6.1 & Figure 6.2
 # The next works, with warnings
-read.ucinet.header("Data/doctorates") -> doc_hdr
-read.ucinet("Data/doctorates") -> doc_mat
+read.ucinet.header(here("Data/doctorates")) -> doc_hdr
+read.ucinet(here("Data/doctorates")) -> doc_mat
 # A bit of clean-up; remove attributes
 NULL -> attr(doc_mat, "title")
 NULL -> attr(doc_mat, "date")
@@ -1810,7 +1810,7 @@ power_centrality(F10.7_in_gr,
 # Figure 10.7
 # Data not given
 
-## Chapter 11 - still to do ####
+## Chapter 11 ####
 
 # Figure 11.1
 matrix(c(1,2,
@@ -2049,7 +2049,7 @@ plot(campBlocks, camp, vertex.label=V(camp)$name, margin=-0.2,
 # Figure 11.12
 
 
-## Chapter 12 - still to do ####
+## Chapter 12 ####
 
 # Figure 12.1
 # Let's just do Relation 2
@@ -2236,7 +2236,7 @@ kc
 gplot(baker_mat,
       vertex.col=kc)
 
-## Chapter 13 - still to do ####
+## Chapter 13 ####
 
 # Matrix 13.1
 # Same as Matrix 2.3
@@ -2334,7 +2334,7 @@ plot(davis_bipart_gr,
 # Figure 13.8
 # structural blockmodel for davisDyn
 
-## Chapter 14 - still to do ####
+## Chapter 14 ####
 # 5 Figs, 1 Mat, 2 Tables
 
 # Figure 14.1
